@@ -1,0 +1,2453 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>PJP C1 · платформа школы</title>
+<style>
+  :root{
+    --paper:#f6f3ec; --paper-line:#dcd5c4; --ink:#1f2420; --ink-soft:#5b5a52;
+    --crimson:#a3273c; --crimson-deep:#7c1c2c; --gold:#b3893a;
+    --ok:#2f6b4f; --bad:#a3273c;
+    --mono:'Courier New',ui-monospace,SFMono-Regular,Menlo,monospace;
+    --serif:Georgia,'Iowan Old Style','Times New Roman',serif;
+  }
+  *{box-sizing:border-box;}
+  body{margin:0; background:var(--paper); color:var(--ink); font-family:var(--serif); padding-bottom:60px;}
+
+  header{padding:14px 18px; border-bottom:1px solid var(--paper-line); display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:8px;}
+  header h1{font-size:15px; font-weight:400; margin:0;}
+  .eyebrow{font-family:var(--mono); font-size:10px; letter-spacing:.1em; text-transform:uppercase; color:var(--crimson-deep);}
+  .controls{display:flex; gap:7px; flex-wrap:wrap; align-items:center;}
+  .btn{font-family:var(--mono); font-size:10.5px; border:1px solid var(--ink); background:transparent; color:var(--ink); padding:7px 10px; cursor:pointer; text-decoration:none; display:inline-block;}
+  .btn.on{background:var(--ink); color:var(--paper);}
+  .btn.crimson{border-color:var(--crimson); color:var(--crimson);}
+  .btn.crimson:hover{background:var(--crimson); color:#fff;}
+  .btn[disabled]{opacity:.4; cursor:default;}
+
+  nav.tabs{display:grid; grid-template-columns:repeat(4,1fr); gap:1px; background:var(--paper-line); border-bottom:1px solid var(--paper-line);}
+  .tab{background:var(--paper); padding:10px 6px; text-align:center; cursor:pointer; font-family:var(--mono); font-size:10.5px; text-transform:uppercase; letter-spacing:.04em; color:var(--ink-soft);}
+  .tab .n{display:block; font-family:var(--serif); font-size:16px; color:var(--ink);}
+  .tab.active{background:var(--ink); color:var(--paper);}
+  .tab.active .n{color:var(--paper);}
+  .tab .clock{display:block; font-size:10px; color:var(--gold); margin-top:2px;}
+  .tab.active .clock{color:#e8c988;}
+
+  main, .page{max-width:820px; margin:0 auto; padding:22px;}
+  .section-head{display:flex; justify-content:space-between; align-items:baseline; border-bottom:2px solid var(--ink); padding-bottom:8px; margin-bottom:16px; flex-wrap:wrap; gap:8px;}
+  .section-head h2{font-size:19px; font-weight:400; margin:0;}
+  .section-meta{font-family:var(--mono); font-size:11px; color:var(--ink-soft);}
+  .timer-controls{display:flex; gap:8px; align-items:center;}
+  .timerbox{font-family:var(--mono); font-size:22px; border:1px solid var(--ink); padding:4px 12px; min-width:92px; text-align:center;}
+  .timerbox.low{color:var(--bad); border-color:var(--bad);}
+
+  .task{margin-bottom:22px; border:1px solid var(--paper-line); background:#fffef9;}
+  .task-title{font-family:var(--mono); font-size:11.5px; letter-spacing:.04em; text-transform:uppercase; color:var(--crimson-deep); padding:10px 14px; border-bottom:1px solid var(--paper-line); background:#f4f0e4; display:flex; justify-content:space-between; align-items:center; gap:8px;}
+  .task-title .tscore{color:var(--ink-soft); font-size:11px; white-space:nowrap;}
+  .task-note{font-size:12.5px; color:var(--ink-soft); padding:8px 14px 0; line-height:1.5;}
+  .items{padding:6px 14px 14px;}
+  .item{display:flex; align-items:center; gap:10px; padding:6px 0; border-bottom:1px solid #ece6d6; flex-wrap:wrap;}
+  .item:last-child{border-bottom:none;}
+  .item .qn{font-family:var(--mono); width:22px; flex-shrink:0; color:var(--ink-soft); font-size:12px;}
+  .choices{display:flex; gap:5px;}
+  .choice{font-family:var(--mono); font-size:12px; border:1px solid var(--ink-soft); min-width:28px; height:28px; padding:0 6px; cursor:pointer; background:transparent; color:var(--ink);}
+  .choice.picked{background:var(--ink); color:var(--paper); border-color:var(--ink);}
+  .choice[disabled]{cursor:default; opacity:.85;}
+  .ro-answer{font-family:var(--mono); font-size:12.5px; padding:5px 10px; background:#f4f0e4; min-width:50px; text-align:center; border:1px solid var(--paper-line);}
+  .ro-answer.ok{border-color:var(--ok); color:var(--ok);}
+  .ro-answer.bad{border-color:var(--bad); color:var(--bad); text-decoration:line-through;}
+  .ro-mark{font-family:var(--mono); font-size:14px; width:22px; text-align:center;}
+  .ro-mark.ok{color:var(--ok);}
+  .ro-mark.bad{color:var(--bad);}
+  .txtin{font-family:var(--mono); font-size:12.5px; border:none; border-bottom:1px solid var(--ink-soft); background:transparent; padding:5px 2px; flex:1; min-width:100px; color:var(--ink);}
+  select.matchsel{font-family:var(--mono); font-size:12px; padding:4px; border:1px solid var(--ink-soft); background:var(--paper);}
+  .manual-note{font-family:var(--mono); font-size:11px; color:var(--ink-soft); padding:8px 14px 12px;}
+  .section-score{font-family:var(--mono); font-size:12px; background:#fffef9; border:1px solid var(--paper-line); padding:7px 11px; margin-bottom:14px; display:flex; justify-content:space-between;}
+  .section-score b{color:var(--crimson-deep);}
+
+  audio{width:100%; margin-top:8px;}
+  .audiobox{border:1px solid var(--paper-line); background:#fffef9; padding:10px 14px; margin-bottom:16px;}
+  .audiobox label{font-family:var(--mono); font-size:11px; color:var(--ink-soft);}
+
+  .banner{display:none; background:var(--ink); color:var(--paper); padding:12px 18px; font-family:var(--mono); font-size:12.5px;}
+
+  .authbox{max-width:360px; margin:60px auto; padding:28px; border:1px solid var(--paper-line); background:#fffef9;}
+  .authbox h2{font-weight:400; margin-top:0;}
+  .authbox input, .authbox select{width:100%; padding:9px; margin-bottom:10px; font-family:var(--mono); font-size:13px; border:1px solid var(--paper-line); background:var(--paper);}
+  .authbox .btn{width:100%; text-align:center; padding:10px;}
+  .authswitch{text-align:center; margin-top:14px; font-family:var(--mono); font-size:11px; color:var(--ink-soft);}
+  .authswitch a{color:var(--crimson-deep); cursor:pointer; text-decoration:underline;}
+  .err{color:var(--bad); font-family:var(--mono); font-size:11.5px; margin-bottom:10px;}
+
+  .student-card{border:1px solid var(--paper-line); background:#fffef9; padding:14px 16px; margin-bottom:12px;}
+  .student-card .top{display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:8px;}
+  .student-card b{font-size:15px;}
+  .student-card .meta{font-family:var(--mono); font-size:11px; color:var(--ink-soft);}
+  .assign-row{display:flex; gap:8px; margin-top:10px; flex-wrap:wrap; align-items:center;}
+  .assign-row select{font-family:var(--mono); font-size:11px; padding:6px; border:1px solid var(--paper-line); background:var(--paper);}
+  .attempt-chip{display:inline-flex; align-items:center; gap:6px; font-family:var(--mono); font-size:11px; border:1px solid var(--paper-line); padding:5px 9px; margin:4px 6px 0 0; cursor:pointer;}
+  .attempt-chip .dot{width:7px; height:7px; border-radius:50%; background:var(--ink-soft);}
+  .attempt-chip.assigned .dot{background:var(--gold);}
+  .attempt-chip.in_progress .dot{background:#3a7ca5;}
+  .attempt-chip.awaiting .dot{background:var(--crimson);}
+  .attempt-chip.reviewed .dot{background:var(--ok);}
+
+  .mark-row{display:flex; gap:4px;}
+  .mark-btn{font-family:var(--mono); font-size:11px; border:1px solid var(--ink-soft); width:26px; height:26px; cursor:pointer; background:transparent;}
+  .mark-btn.ok{border-color:var(--ok); color:var(--ok);}
+  .mark-btn.ok.on{background:var(--ok); color:#fff;}
+  .mark-btn.bad{border-color:var(--bad); color:var(--bad);}
+  .mark-btn.bad.on{background:var(--bad); color:#fff;}
+  .student-answer{font-family:var(--mono); font-size:12.5px; padding:6px 10px; background:#f4f0e4; min-width:60px; text-align:center;}
+  .tutor-score{font-family:var(--mono); font-size:13px; background:#fffef9; border:1px solid var(--paper-line); padding:8px 12px; margin-bottom:16px; display:flex; justify-content:space-between;}
+  .tutor-score b{color:var(--crimson-deep);}
+  .klucz-pin{position:sticky; top:0; z-index:5; background:var(--paper); padding:10px 0; border-bottom:1px solid var(--paper-line); margin-bottom:16px;}
+  .comment-box{border:1px solid var(--paper-line); background:#fffef9; padding:12px 14px; margin:16px 0;}
+  .comment-box textarea{width:100%; min-height:70px; font-family:var(--serif); font-size:13.5px; border:1px solid var(--paper-line); padding:8px; margin-top:6px;}
+</style>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+</head>
+<body>
+
+<header id="appHeader">
+  <div>
+    <div class="eyebrow">Egzamin certyfikatowy z języka polskiego</div>
+    <h1 id="pageTitle">PJP C1 — платформа школы</h1>
+  </div>
+  <div class="controls" id="headerControls"></div>
+</header>
+
+<div id="app"></div>
+
+<script>
+/* ============================================================
+   ПРОТОТИП АВТОРИЗАЦИИ — читать перед деплоем на реальную платформу:
+   Логины/пароли репетиторов и учеников хранятся в localStorage
+   ОТКРЫТЫМ ТЕКСТОМ, без сервера. Это годится, чтобы посмотреть,
+   как должна работать логика (создание ученика, назначение теста,
+   архив), но НЕ для реальных данных. Перед реальным использованием
+   замените функции секции "DB" ниже на вызовы вашего backend API —
+   структура данных (tutors/students/attempts) уже готова под это.
+   ============================================================ */
+
+const EXAMS = {
+'2020': [
+  { id:'listening', label:'Rozumienie ze słuchu', minutes:40, points:40,
+    tasks:[
+      {id:'l1', title:'Zadanie I — wybór a/b/c (6 nagrań)', type:'mc', n:6},
+      {id:'l2', title:'Zadanie II — TAK / NIE (8 zdań)', type:'mc', opts:['TAK','NIE'], n:8},
+      {id:'l3', title:'Zadanie III — dopasowanie (A–J → 1–5)', type:'match', letters:['A','B','C','D','E','F','G','H','I','J'], options:[1,2,3,4,5]},
+      {id:'l4', title:'Zadanie IV — wybór a/b/c (reportaż)', type:'mc', n:8},
+      {id:'l5', title:'Zadanie V — odpowiedzi otwarte', type:'open', n:8}
+    ]},
+  { id:'reading', label:'Rozumienie tekstów pisanych', minutes:60, points:40,
+    tasks:[
+      {id:'r1', title:'Zadanie I — wybór a/b/c (pokolenie Z)', type:'mc', n:7},
+      {id:'r2', title:'Zadanie II — TAK / NIE / BI (10 zdań)', type:'mc', opts:['TAK','NIE','BI'], n:10},
+      {id:'r3', title:'Zadanie III — brakujące fragmenty (2 zbędne)', type:'match', letters:[1,2,3,4,5,6,7,8,9,10], options:['A','B','C','D','E','F','G','H','I','J','K','L','M']},
+      {id:'r4', title:'Zadanie IV — wybór słowa', type:'open', n:10},
+      {id:'r5', title:'Zadanie V — wybór a/b/c (krótkie teksty)', type:'mc', n:8}
+    ]},
+  { id:'grammar', label:'Poprawność gramatyczna', minutes:60, points:40,
+    tasks:[
+      {id:'g1', title:'Zadanie I — liczebniki', type:'open', n:10},
+      {id:'g2', title:'Zadanie II — przekształcenia zdań', type:'open', n:5},
+      {id:'g3', title:'Zadanie III — przymiotniki', type:'open', n:10},
+      {id:'g4', title:'Zadanie IV — spójniki z ramki', type:'open', n:10},
+      {id:'g5', title:'Zadanie V — rzeczowniki odczasownikowe', type:'open', n:10},
+      {id:'g6', title:'Zadanie VI — imiesłowy', type:'open', n:10},
+      {id:'g7', title:'Zadanie VII — aspekt czasownika', type:'open', n:10},
+      {id:'g8', title:'Zadanie VIII — odmiana', type:'open', n:10}
+    ]},
+  { id:'writing', label:'Pisanie', minutes:90, points:40, tasks:[] }
+],
+'2019': [
+  { id:'listening', label:'Rozumienie ze słuchu', minutes:40, points:40,
+    tasks:[
+      {id:'l1', title:'Zadanie I — wybór a/b/c', type:'mc', n:6},
+      {id:'l2', title:'Zadanie II — TAK / NIE (10 zdań)', type:'mc', opts:['TAK','NIE'], n:10},
+      {id:'l3', title:'Zadanie III — wybór a/b/c', type:'mc', n:8},
+      {id:'l4', title:'Zadanie IV — dopasowanie (1–7 → A–G)', type:'match', letters:[1,2,3,4,5,6,7], options:['A','B','C','D','E','F','G']},
+      {id:'l5', title:'Zadanie V — odpowiedzi otwarte', type:'open', n:7}
+    ]},
+  { id:'reading', label:'Rozumienie tekstów pisanych', minutes:60, points:40,
+    tasks:[
+      {id:'r1', title:'Zadanie I — uzupełnianie słów', type:'open', n:10},
+      {id:'r2', title:'Zadanie II — wybór a/b/c', type:'mc', n:5},
+      {id:'r3', title:'Zadanie III — TAK / NIE / BI', type:'mc', opts:['TAK','NIE','BI'], n:10},
+      {id:'r4', title:'Zadanie IV — brakujące fragmenty (1 zbędny)', type:'match', letters:[1,2,3,4,5,6,7,8,9,10], options:['A','B','C','D','E','F','G','H','I','J','K','L']},
+      {id:'r5', title:'Zadanie V — dopasowanie', type:'match', letters:[1,2,3,4,5,6,7,8,9,10], options:['A','B','C','D','E','F','G','H','I','J','K']}
+    ]},
+  { id:'grammar', label:'Poprawność gramatyczna', minutes:60, points:40,
+    tasks:[
+      {id:'g1', title:'Zadanie I — odmiana rzeczowników', type:'open', n:10},
+      {id:'g2', title:'Zadanie II — liczebniki', type:'open', n:10},
+      {id:'g3', title:'Zadanie III — przymiotniki', type:'open', n:10},
+      {id:'g4', title:'Zadanie IV — spójniki z ramki', type:'open', n:10},
+      {id:'g5', title:'Zadanie V — imiesłowy', type:'open', n:10},
+      {id:'g6', title:'Zadanie VI — aspekt czasownika', type:'open', n:10},
+      {id:'g7', title:'Zadanie VII — odmiana rzeczowników/zaimków', type:'open', n:10},
+      {id:'g8', title:'Zadanie VIII — przekształcenia zdań', type:'open', n:5}
+    ]},
+  { id:'writing', label:'Pisanie', minutes:90, points:40, tasks:[] }
+],
+'2017': [
+  { id:'listening', label:'Rozumienie ze słuchu', minutes:30, points:40,
+    tasks:[
+      {id:'l1', title:'Zadanie I — wybór a/b/c', type:'mc', n:6},
+      {id:'l2', title:'Zadanie II — Prawda / Fałsz', type:'mc', opts:['P','F'], n:9},
+      {id:'l3', title:'Zadanie III — dopasowanie (1–8 → A–I)', type:'match', letters:[1,2,3,4,5,6,7,8], options:['A','B','C','D','E','F','G','H','I']},
+      {id:'l4', title:'Zadanie IV — dopasowanie fotografii (1–7 → A–J)', type:'match', letters:[1,2,3,4,5,6,7], options:['A','B','C','D','E','F','G','H','I','J']},
+      {id:'l5', title:'Zadanie V — odpowiedzi otwarte', type:'open', n:10}
+    ]},
+  { id:'reading', label:'Rozumienie tekstów pisanych', minutes:60, points:40,
+    tasks:[
+      {id:'r1', title:'Zadanie I — wybór a/b/c', type:'mc', n:8},
+      {id:'r2', title:'Zadanie II — uzupełnianie słów', type:'open', n:8},
+      {id:'r3', title:'Zadanie III — dopasowanie (1–8 → A–I)', type:'match', letters:[1,2,3,4,5,6,7,8], options:['A','B','C','D','E','F','G','H','I']},
+      {id:'r4', title:'Zadanie IV — pytania otwarte', type:'open', n:6},
+      {id:'r5', title:'Zadanie V — dopasowanie (1–8 → A–I)', type:'match', letters:[1,2,3,4,5,6,7,8], options:['A','B','C','D','E','F','G','H','I']}
+    ]},
+  { id:'grammar', label:'Poprawność gramatyczna', minutes:60, points:40,
+    tasks:[
+      {id:'g1', title:'Zadanie I — liczebniki i rzeczowniki', type:'open', n:5},
+      {id:'g2', title:'Zadanie II — przekształcenia zdań', type:'open', n:5},
+      {id:'g3', title:'Zadanie III — rzeczowniki odczasownikowe', type:'open', n:10},
+      {id:'g4', title:'Zadanie IV — przymiotniki/rzeczowniki', type:'open', n:10},
+      {id:'g5', title:'Zadanie V — spójniki z ramki', type:'open', n:10},
+      {id:'g6', title:'Zadanie VI — imiesłowy', type:'open', n:10},
+      {id:'g7', title:'Zadanie VII — aspekt czasownika', type:'open', n:10},
+      {id:'g8', title:'Zadanie VIII — odmiana', type:'open', n:10}
+    ]},
+  { id:'writing', label:'Pisanie', minutes:90, points:40, tasks:[] }
+],
+'2021-06': [
+  { id:'listening', label:'Rozumienie ze słuchu', minutes:40, points:40,
+    tasks:[
+      {id:'l1', title:'Zadanie I — wybór a/b/c', type:'mc', n:7},
+      {id:'l2', title:'Zadanie II — wybór a/b/c', type:'mc', n:8},
+      {id:'l3', title:'Zadanie III — TAK / NIE (8 zdań)', type:'mc', opts:['TAK','NIE'], n:8},
+      {id:'l4', title:'Zadanie IV — dopasowanie (A–J → 1–5)', type:'match', letters:['A','B','C','D','E','F','G','H','I','J'], options:[1,2,3,4,5]},
+      {id:'l5', title:'Zadanie V — odpowiedzi otwarte', type:'open', n:7}
+    ]},
+  { id:'reading', label:'Rozumienie tekstów pisanych', minutes:60, points:40,
+    tasks:[
+      {id:'r1', title:'Zadanie I — dopasowanie (1–8 → A–I)', type:'match', letters:[1,2,3,4,5,6,7,8], options:['A','B','C','D','E','F','G','H','I']},
+      {id:'r2', title:'Zadanie II — brakujące fragmenty (1 zbędny)', type:'match', letters:[1,2,3,4,5,6,7,8,9,10], options:['A','B','C','D','E','F','G','H','I','J','K','L']},
+      {id:'r3', title:'Zadanie III — TAK / NIE / BI', type:'mc', opts:['TAK','NIE','BI'], n:8},
+      {id:'r4', title:'Zadanie IV — litery fragmentów (możliwe kilka)', type:'open', n:5},
+      {id:'r5', title:'Zadanie V — uzupełnianie słów', type:'open', n:14}
+    ]},
+  { id:'grammar', label:'Poprawność gramatyczna', minutes:60, points:40,
+    tasks:[
+      {id:'g1', title:'Zadanie I — liczebniki', type:'open', n:10},
+      {id:'g2', title:'Zadanie II — przekształcenia zdań', type:'open', n:5},
+      {id:'g3', title:'Zadanie III — rzeczowniki odczasownikowe', type:'open', n:10},
+      {id:'g4', title:'Zadanie IV — przymiotniki', type:'open', n:10},
+      {id:'g5', title:'Zadanie V — imiesłowy', type:'open', n:10},
+      {id:'g6', title:'Zadanie VI — spójniki z ramki', type:'open', n:10},
+      {id:'g7', title:'Zadanie VII — aspekt czasownika', type:'open', n:10},
+      {id:'g8', title:'Zadanie VIII — odmiana', type:'open', n:10}
+    ]},
+  { id:'writing', label:'Pisanie', minutes:90, points:40, tasks:[] }
+],
+'2021-05': [
+  { id:'listening', label:'Rozumienie ze słuchu', minutes:40, points:40,
+    tasks:[
+      {id:'l1', title:'Zadanie I — wybór a/b/c', type:'mc', n:6},
+      {id:'l2', title:'Zadanie II — TAK / NIE (8 zdań)', type:'mc', opts:['TAK','NIE'], n:8},
+      {id:'l3', title:'Zadanie III — dopasowanie (A–G, możliwe 2 odpowiedzi)', type:'open', n:7},
+      {id:'l4', title:'Zadanie IV — wybór a/b/c', type:'mc', n:6},
+      {id:'l5', title:'Zadanie V — odpowiedzi otwarte', type:'open', n:10}
+    ]},
+  { id:'reading', label:'Rozumienie tekstów pisanych', minutes:60, points:40,
+    tasks:[
+      {id:'r1', title:'Zadanie I — wybór a/b/c', type:'mc', n:8},
+      {id:'r2', title:'Zadanie II — brakujące fragmenty (1 zbędny)', type:'match', letters:[1,2,3,4,5,6,7,8,9,10], options:['A','B','C','D','E','F','G','H','I','J','K','L']},
+      {id:'r3', title:'Zadanie III — litery fragmentów (możliwe 2)', type:'open', n:7},
+      {id:'r4', title:'Zadanie IV — wybór właściwej odpowiedzi', type:'open', n:10},
+      {id:'r5', title:'Zadanie V — wybór a/b/c', type:'mc', n:7}
+    ]},
+  { id:'grammar', label:'Poprawność gramatyczna', minutes:60, points:40,
+    tasks:[
+      {id:'g1', title:'Zadanie I — liczebniki', type:'open', n:10},
+      {id:'g2', title:'Zadanie II — przekształcenia zdań', type:'open', n:5},
+      {id:'g3', title:'Zadanie III — rzeczowniki odczasownikowe', type:'open', n:10},
+      {id:'g4', title:'Zadanie IV — przymiotniki', type:'open', n:10},
+      {id:'g5', title:'Zadanie V — spójniki z ramki', type:'open', n:10},
+      {id:'g6', title:'Zadanie VI — imiesłowy', type:'open', n:10},
+      {id:'g7', title:'Zadanie VII — aspekt czasownika', type:'open', n:10},
+      {id:'g8', title:'Zadanie VIII — odmiana', type:'open', n:10}
+    ]},
+  { id:'writing', label:'Pisanie', minutes:90, points:40, tasks:[] }
+],
+'B2-2020': [
+  { id:'listening', label:'Rozumienie ze słuchu', minutes:40, points:40,
+    tasks:[
+      {id:'l1', title:'Zadanie I — wybór a/b/c (4 nagrania, po 2 pytania)', type:'mc', n:8},
+      {id:'l2', title:'Zadanie II — TAK / NIE (9 zdań)', type:'mc', opts:['TAK','NIE'], n:9},
+      {id:'l3', title:'Zadanie III — dopasowanie miejsc (1–8 → A–D, możliwe kilka)', type:'open', n:8},
+      {id:'l4', title:'Zadanie IV — wybór a/b/c', type:'mc', n:7},
+      {id:'l5', title:'Zadanie V — odpowiedzi otwarte (historia kawy)', type:'open', n:6}
+    ]},
+  { id:'reading', label:'Rozumienie tekstów pisanych', minutes:60, points:40,
+    tasks:[
+      {id:'r1', title:'Zadanie I — wybór a/b/c', type:'mc', n:5},
+      {id:'r2', title:'Zadanie II — brakujące fragmenty', type:'match', letters:[1,2,3,4,5,6,7,8,9,10], options:['A','B','C','D','E','F','G','H','I','J','K']},
+      {id:'r3', title:'Zadanie III — dopasowanie wypowiedzi', type:'match', letters:[1,2,3,4,5,6,7,8,9,10], options:['A','B','C','D','E','F','G','H','I','J','K']},
+      {id:'r4', title:'Zadanie IV — TAK / NIE / BI', type:'mc', opts:['TAK','NIE','BI'], n:10},
+      {id:'r5', title:'Zadanie V — wybór słowa', type:'open', n:10}
+    ]},
+  { id:'grammar', label:'Poprawność gramatyczna', minutes:60, points:40,
+    tasks:[
+      {id:'g1', title:'Zadanie I — imiesłowy', type:'open', n:10},
+      {id:'g2', title:'Zadanie II — przyimki z ramki (2 zbędne)', type:'open', n:10},
+      {id:'g3', title:'Zadanie III — strona bierna / nieosobowe', type:'open', n:10},
+      {id:'g4', title:'Zadanie IV — odmiana rzeczowników/zaimków', type:'open', n:10},
+      {id:'g5', title:'Zadanie V — aspekt, czas przeszły/przyszły', type:'open', n:10},
+      {id:'g6', title:'Zadanie VI — liczebniki', type:'open', n:10},
+      {id:'g7', title:'Zadanie VII — stopniowanie przymiotników/przysłówków', type:'open', n:10},
+      {id:'g8', title:'Zadanie VIII — przekształcenia zdań', type:'freeform', n:5}
+    ]},
+  { id:'writing', label:'Pisanie', minutes:90, points:40, tasks:[] }
+],
+'B2-2019': [
+  { id:'listening', label:'Rozumienie ze słuchu', minutes:30, points:40,
+    tasks:[
+      {id:'l1', title:'Zadanie I — wybór a/b/c (4 nagrania, po 2 pytania)', type:'mc', n:8},
+      {id:'l2', title:'Zadanie II — wybór a/b/c', type:'mc', n:6},
+      {id:'l3', title:'Zadanie III — TAK / NIE (8 zdań)', type:'mc', opts:['TAK','NIE'], n:8},
+      {id:'l4', title:'Zadanie IV — dopasowanie roślin (możliwe kilka)', type:'open', n:8},
+      {id:'l5', title:'Zadanie V — odpowiedzi otwarte (sól w fast foodach)', type:'open', n:8}
+    ]},
+  { id:'reading', label:'Rozumienie tekstów pisanych', minutes:60, points:40,
+    tasks:[
+      {id:'r1', title:'Zadanie I — wybór a/b/c', type:'mc', n:5},
+      {id:'r2', title:'Zadanie II — brakujące fragmenty', type:'match', letters:[1,2,3,4,5,6,7,8,9,10], options:['A','B','C','D','E','F','G','H','I','J','K']},
+      {id:'r3', title:'Zadanie III — dopasowanie wypowiedzi', type:'match', letters:[1,2,3,4,5,6,7,8,9,10], options:['A','B','C','D','E','F','G','H','I','J','K']},
+      {id:'r4', title:'Zadanie IV — TAK / NIE / BI', type:'mc', opts:['TAK','NIE','BI'], n:10},
+      {id:'r5', title:'Zadanie V — uzupełnianie słowami z ramki (3 zbędne)', type:'open', n:10}
+    ]},
+  { id:'grammar', label:'Poprawność gramatyczna', minutes:60, points:40,
+    tasks:[
+      {id:'g1', title:'Zadanie I — imiesłowy', type:'open', n:10},
+      {id:'g2', title:'Zadanie II — przyimki z ramki (2 zbędne)', type:'open', n:10},
+      {id:'g3', title:'Zadanie III — strona bierna / nieosobowe', type:'open', n:10},
+      {id:'g4', title:'Zadanie IV — odmiana rzeczowników/przymiotników/zaimków', type:'open', n:10},
+      {id:'g5', title:'Zadanie V — odmiana liczebników', type:'open', n:10},
+      {id:'g6', title:'Zadanie VI — aspekt, czas przeszły/przyszły', type:'open', n:10},
+      {id:'g7', title:'Zadanie VII — stopniowanie przymiotników/przysłówków', type:'open', n:10},
+      {id:'g8', title:'Zadanie VIII — przekształcenia zdań', type:'freeform', n:5}
+    ]},
+  { id:'writing', label:'Pisanie', minutes:90, points:40, tasks:[] }
+],
+'B2-2017': [
+  { id:'listening', label:'Rozumienie ze słuchu', minutes:30, points:40,
+    tasks:[
+      {id:'l1', title:'Zadanie I — uzupełnianie brakujących słów', type:'open', n:12},
+      {id:'l2', title:'Zadanie II — wybór a/b/c', type:'mc', n:8},
+      {id:'l3', title:'Zadanie III — Prawda / Fałsz', type:'mc', opts:['P','F'], n:8},
+      {id:'l4', title:'Zadanie IV — dopasowanie osób (1–4 → A–G, możliwe kilka)', type:'open', n:7},
+      {id:'l5', title:'Zadanie V — odpowiedzi otwarte (pralnia)', type:'open', n:8}
+    ]},
+  { id:'reading', label:'Rozumienie tekstów pisanych', minutes:60, points:40,
+    tasks:[
+      {id:'r1', title:'Zadanie I — wybór a/b/c', type:'mc', n:5},
+      {id:'r2', title:'Zadanie II — Prawda / Fałsz / BI', type:'mc', opts:['P','F','BI'], n:10},
+      {id:'r3', title:'Zadanie III — dopasowanie wypowiedzi', type:'match', letters:[1,2,3,4,5,6,7,8,9,10], options:['A','B','C','D','E','F','G','H','I','J','K']},
+      {id:'r4', title:'Zadanie IV — uzupełnianie luk (wybór wariantu)', type:'open', n:10},
+      {id:'r5', title:'Zadanie V — wybór słowa', type:'open', n:10}
+    ]},
+  { id:'grammar', label:'Poprawność gramatyczna', minutes:60, points:40,
+    tasks:[
+      {id:'g1', title:'Zadanie I — imiesłowy', type:'open', n:10},
+      {id:'g2', title:'Zadanie II — przyimki z ramki (1 zbędny)', type:'open', n:10},
+      {id:'g3', title:'Zadanie III — strona bierna / nieosobowe', type:'open', n:10},
+      {id:'g4', title:'Zadanie IV — odmiana rzeczowników/przymiotników/zaimków', type:'open', n:10},
+      {id:'g5', title:'Zadanie V — aspekt', type:'open', n:10},
+      {id:'g6', title:'Zadanie VI — rzeczowniki odczasownikowe/odprzymiotnikowe', type:'open', n:5},
+      {id:'g7', title:'Zadanie VII — odmiana liczebników', type:'open', n:5},
+      {id:'g8', title:'Zadanie VIII — stopniowanie', type:'open', n:5}
+    ]},
+  { id:'writing', label:'Pisanie', minutes:90, points:40, tasks:[] }
+],
+'2022-03': [
+  { id:'listening', label:'Rozumienie ze słuchu', minutes:40, points:40,
+    tasks:[
+      {id:'l1', title:'Zadanie I — wybór a/b/c (nagranie odtwarzane 1 raz!)', type:'mc', n:8},
+      {id:'l2', title:'Zadanie II — TAK / NIE (9 zdań)', type:'mc', opts:['TAK','NIE'], n:9},
+      {id:'l3', title:'Zadanie III — dopasowanie osób (1–4 → A–H)', type:'match', letters:['A','B','C','D','E','F','G','H'], options:[1,2,3,4]},
+      {id:'l4', title:'Zadanie IV — dopasowanie (PRZYKŁAD–8 → A–I)', type:'match', letters:[1,2,3,4,5,6,7,8], options:['A','B','C','D','E','F','G','H','I']},
+      {id:'l5', title:'Zadanie V — odpowiedzi otwarte (dzieciństwo Jana Żabińskiego)', type:'open', n:7}
+    ]},
+  { id:'reading', label:'Rozumienie tekstów pisanych', minutes:60, points:40,
+    tasks:[
+      {id:'r1', title:'Zadanie I — wybór a/b/c', type:'mc', n:10},
+      {id:'r2', title:'Zadanie II — brakujące fragmenty (1 zbędny)', type:'match', letters:[1,2,3,4,5,6,7], options:['A','B','C','D','E','F','G','H','I']},
+      {id:'r3', title:'Zadanie III — TAK / NIE / BI', type:'mc', opts:['TAK','NIE','BI'], n:8},
+      {id:'r4', title:'Zadanie IV — dopasowanie tytułów', type:'match', letters:[1,2,3,4,5,6,7,8,9,10], options:['A','B','C','D','E','F','G','H','I','J','K']},
+      {id:'r5', title:'Zadanie V — który fragment o tym mówi (możliwe kilka liter)', type:'open', n:6}
+    ]},
+  { id:'grammar', label:'Poprawność gramatyczna', minutes:60, points:40,
+    tasks:[
+      {id:'g1', title:'Zadanie I — liczebniki i rzeczowniki', type:'open', n:10},
+      {id:'g2', title:'Zadanie II — przekształcenia zdań', type:'freeform', n:5},
+      {id:'g3', title:'Zadanie III — rzeczowniki odczasownikowe', type:'open', n:10},
+      {id:'g4', title:'Zadanie IV — tworzenie przymiotników', type:'open', n:10},
+      {id:'g5', title:'Zadanie V — spójniki z ramki (2 zbędne)', type:'open', n:10},
+      {id:'g6', title:'Zadanie VI — imiesłowy', type:'open', n:10},
+      {id:'g7', title:'Zadanie VII — aspekt i formy czasownika', type:'open', n:10},
+      {id:'g8', title:'Zadanie VIII — odmiana rzeczowników/przymiotników/zaimków', type:'open', n:10}
+    ]},
+  { id:'writing', label:'Pisanie', minutes:90, points:40, tasks:[] }
+],
+'2023-04': [
+  { id:'listening', label:'Rozumienie ze słuchu', minutes:40, points:40,
+    tasks:[
+      {id:'l1', title:'Zadanie I — wybór a/b/c (nagranie odtwarzane 1 raz!)', type:'mc', n:6},
+      {id:'l2', title:'Zadanie II — TAK / NIE (8 zdań)', type:'mc', opts:['TAK','NIE'], n:8},
+      {id:'l3', title:'Zadanie III — wybór a/b/c', type:'mc', n:7},
+      {id:'l4', title:'Zadanie IV — dopasowanie osób do wypowiedzi (A–G → 1–6, możliwe kilka)', type:'match', letters:['A','B','C','D','E','F','G'], options:[1,2,3,4,5,6]},
+      {id:'l5', title:'Zadanie V — odpowiedzi otwarte (kosmiczne śmieci)', type:'open', n:9}
+    ]},
+  { id:'reading', label:'Rozumienie tekstów pisanych', minutes:60, points:40,
+    tasks:[
+      {id:'r1', title:'Zadanie I — wybór a/b/c', type:'mc', n:10},
+      {id:'r2', title:'Zadanie II — dopasowanie tytułów', type:'match', letters:[1,2,3,4,5,6,7,8,9,10], options:['A','B','C','D','E','F','G','H','I','J','K']},
+      {id:'r3', title:'Zadanie III — TAK / NIE / BI', type:'mc', opts:['TAK','NIE','BI'], n:10},
+      {id:'r4', title:'Zadanie IV — brakujące fragmenty (1 zbędny)', type:'match', letters:[1,2,3,4,5,6,7,8,9,10], options:['A','B','C','D','E','F','G','H','I','J','K','L']},
+      {id:'r5', title:'Zadanie V — wybór słowa', type:'open', n:10}
+    ]},
+  { id:'grammar', label:'Poprawność gramatyczna', minutes:60, points:40,
+    tasks:[
+      {id:'g1', title:'Zadanie I — liczebniki', type:'open', n:10},
+      {id:'g2', title:'Zadanie II — przekształcenia zdań', type:'freeform', n:5},
+      {id:'g3', title:'Zadanie III — rzeczowniki odczasownikowe', type:'open', n:10},
+      {id:'g4', title:'Zadanie IV — tworzenie przymiotników', type:'open', n:10},
+      {id:'g5', title:'Zadanie V — spójniki z ramki (2 zbędne)', type:'open', n:10},
+      {id:'g6', title:'Zadanie VI — imiesłowy', type:'open', n:10},
+      {id:'g7', title:'Zadanie VII — aspekt i formy czasownika', type:'open', n:10},
+      {id:'g8', title:'Zadanie VIII — odmiana rzeczowników/przymiotników/zaimków', type:'open', n:10}
+    ]},
+  { id:'writing', label:'Pisanie', minutes:90, points:40, tasks:[] }
+],
+'2023-11': [
+  { id:'listening', label:'Rozumienie ze słuchu', minutes:40, points:40,
+    tasks:[
+      {id:'l1', title:'Zadanie I — wybór a/b/c (nagranie odtwarzane 1 raz!)', type:'mc', n:8},
+      {id:'l2', title:'Zadanie II — TAK / NIE (8 zdań)', type:'mc', opts:['TAK','NIE'], n:8},
+      {id:'l3', title:'Zadanie III — dopasowanie nazw (A–J → 1–5)', type:'match', letters:['A','B','C','D','E','F','G','H','I','J'], options:[1,2,3,4,5]},
+      {id:'l4', title:'Zadanie IV — wybór 6 prawdziwych zdań z listy', type:'open', n:6},
+      {id:'l5', title:'Zadanie V — odpowiedzi otwarte (wywiad z muzykiem)', type:'open', n:8}
+    ]},
+  { id:'reading', label:'Rozumienie tekstów pisanych', minutes:60, points:40,
+    tasks:[
+      {id:'r1', title:'Zadanie I — wybór a/b/c', type:'mc', n:7},
+      {id:'r2', title:'Zadanie II — TAK / NIE / BI', type:'mc', opts:['TAK','NIE','BI'], n:8},
+      {id:'r3', title:'Zadanie III — brakujące fragmenty (2 zbędne)', type:'match', letters:[1,2,3,4,5,6,7,8,9,10], options:['A','B','C','D','E','F','G','H','I','J','K','L','M']},
+      {id:'r4', title:'Zadanie IV — w którym fragmencie o tym mowa (możliwe kilka)', type:'open', n:8},
+      {id:'r5', title:'Zadanie V — wybór słowa', type:'open', n:10}
+    ]},
+  { id:'grammar', label:'Poprawność gramatyczna', minutes:60, points:40,
+    tasks:[
+      {id:'g1', title:'Zadanie I — liczebniki', type:'open', n:10},
+      {id:'g2', title:'Zadanie II — przekształcenia zdań', type:'freeform', n:5},
+      {id:'g3', title:'Zadanie III — rzeczowniki odczasownikowe', type:'open', n:10},
+      {id:'g4', title:'Zadanie IV — tworzenie przymiotników', type:'open', n:10},
+      {id:'g5', title:'Zadanie V — spójniki z ramki (2 zbędne)', type:'open', n:10},
+      {id:'g6', title:'Zadanie VI — imiesłowy', type:'open', n:10},
+      {id:'g7', title:'Zadanie VII — aspekt i formy czasownika', type:'open', n:10},
+      {id:'g8', title:'Zadanie VIII — odmiana rzeczowników/przymiotników/zaimków', type:'open', n:10}
+    ]},
+  { id:'writing', label:'Pisanie', minutes:90, points:40, tasks:[] }
+],
+'2024-04': [
+  { id:'listening', label:'Rozumienie ze słuchu', minutes:40, points:40,
+    tasks:[
+      {id:'l1', title:'Zadanie I — wybór a/b/c (nagranie odtwarzane 1 raz!)', type:'mc', n:7},
+      {id:'l2', title:'Zadanie II — dopasowanie roślin (A–G → 1–4, możliwe kilka)', type:'match', letters:['A','B','C','D','E','F','G'], options:[1,2,3,4]},
+      {id:'l3', title:'Zadanie III — TAK / NIE (9 zdań)', type:'mc', opts:['TAK','NIE'], n:9},
+      {id:'l4', title:'Zadanie IV — wybór a/b/c', type:'mc', n:7},
+      {id:'l5', title:'Zadanie V — dopasowanie kolumn (1–8 → A–I)', type:'match', letters:[1,2,3,4,5,6,7,8], options:['A','B','C','D','E','F','G','H','I']}
+    ]},
+  { id:'reading', label:'Rozumienie tekstów pisanych', minutes:60, points:40,
+    tasks:[
+      {id:'r1', title:'Zadanie I — wybór a/b/c', type:'mc', n:8},
+      {id:'r2', title:'Zadanie II — TAK / NIE / BI', type:'mc', opts:['TAK','NIE','BI'], n:9},
+      {id:'r3', title:'Zadanie III — brakujące fragmenty (2 zbędne)', type:'match', letters:[1,2,3,4,5,6,7,8,9,10], options:['A','B','C','D','E','F','G','H','I','J','K','L','M']},
+      {id:'r4', title:'Zadanie IV — dopasowanie tytułów', type:'match', letters:[1,2,3,4,5,6,7,8,9,10], options:['A','B','C','D','E','F','G','H','I','J','K']},
+      {id:'r5', title:'Zadanie V — wybór słowa', type:'open', n:16}
+    ]},
+  { id:'grammar', label:'Poprawność gramatyczna', minutes:60, points:40,
+    tasks:[
+      {id:'g1', title:'Zadanie I — liczebniki', type:'open', n:10},
+      {id:'g2', title:'Zadanie II — przekształcenia zdań', type:'freeform', n:5},
+      {id:'g3', title:'Zadanie III — rzeczowniki odczasownikowe', type:'open', n:10},
+      {id:'g4', title:'Zadanie IV — tworzenie przymiotników', type:'open', n:10},
+      {id:'g5', title:'Zadanie V — spójniki z ramki (2 zbędne)', type:'open', n:10},
+      {id:'g6', title:'Zadanie VI — imiesłowy', type:'open', n:10},
+      {id:'g7', title:'Zadanie VII — aspekt i formy czasownika', type:'open', n:10},
+      {id:'g8', title:'Zadanie VIII — odmiana rzeczowników/przymiotników/zaimków', type:'open', n:10}
+    ]},
+  { id:'writing', label:'Pisanie', minutes:90, points:40, tasks:[] }
+],
+'B1-2020': [
+  { id:'listening', label:'Rozumienie ze słuchu', minutes:30, points:30,
+    tasks:[
+      {id:'l1', title:'Zadanie I — wybór a/b/c (krótkie wypowiedzi)', type:'mc', n:12},
+      {id:'l2', title:'Zadanie II — wybór a/b/c (dialogi)', type:'mc', n:7},
+      {id:'l3', title:'Zadanie III — TAK / NIE', type:'mc', opts:['TAK','NIE'], n:5},
+      {id:'l4', title:'Zadanie IV — dopasowanie opinii (A–E → osoby 1–4, możliwe kilka)', type:'match', letters:['A','B','C','D','E'], options:[1,2,3,4]},
+      {id:'l5', title:'Zadanie V — dopasowanie kolumn', type:'match', letters:[1,2,3,4,5], options:['A','B','C','D','E','F']}
+    ]},
+  { id:'reading', label:'Rozumienie tekstów pisanych', minutes:45, points:30,
+    tasks:[
+      {id:'r1', title:'Zadanie I — wybór a/b/c', type:'mc', n:5},
+      {id:'r2', title:'Zadanie II — TAK / NIE', type:'mc', opts:['TAK','NIE'], n:7},
+      {id:'r3', title:'Zadanie III — brakujące fragmenty', type:'match', letters:[1,2,3,4,5,6,7], options:['A','B','C','D','E','F','G','H']},
+      {id:'r4', title:'Zadanie IV — dopasowanie tytułów', type:'match', letters:[1,2,3,4,5,6,7], options:['A','B','C','D','E','F','G','H']},
+      {id:'r5', title:'Zadanie V — wybór słowa', type:'open', n:8}
+    ]},
+  { id:'grammar', label:'Poprawność gramatyczna', minutes:45, points:30,
+    tasks:[
+      {id:'g1', title:'Zadanie I — odmiana rzeczowników/przymiotników/zaimków', type:'open', n:10},
+      {id:'g2', title:'Zadanie II — spójniki z ramki (1 zbędny)', type:'open', n:5},
+      {id:'g3', title:'Zadanie III — stopniowanie', type:'open', n:5},
+      {id:'g4', title:'Zadanie IV — czas teraźniejszy i przyszły', type:'open', n:10},
+      {id:'g5', title:'Zadanie V — pytania o podkreśloną część zdania', type:'freeform', n:5},
+      {id:'g6', title:'Zadanie VI — przekształcenia zdań', type:'freeform', n:5},
+      {id:'g7', title:'Zadanie VII — aspekt i tryby', type:'open', n:10},
+      {id:'g8', title:'Zadanie VIII — przyimki z ramki (1 zbędny)', type:'open', n:5}
+    ]},
+  { id:'writing', label:'Pisanie', minutes:75, points:30, tasks:[] }
+],
+'B1-2019': [
+  { id:'listening', label:'Rozumienie ze słuchu', minutes:25, points:30,
+    tasks:[
+      {id:'l1', title:'Zadanie I — wybór a/b/c (krótkie wypowiedzi)', type:'mc', n:14},
+      {id:'l2', title:'Zadanie II — TAK / NIE', type:'mc', opts:['TAK','NIE'], n:8},
+      {id:'l3', title:'Zadanie III — wybór a/b/c', type:'mc', n:5},
+      {id:'l4', title:'Zadanie IV — dopasowanie rad (A–E → osoby 1–4, możliwe kilka)', type:'match', letters:['A','B','C','D','E'], options:[1,2,3,4]},
+      {id:'l5', title:'Zadanie V — dopasowanie tekstu do ilustracji', type:'match', letters:['B','C','D','E','F','G','H','I','J','K'], options:[1,2,3,4,5,6,7,8,9,10]}
+    ]},
+  { id:'reading', label:'Rozumienie tekstów pisanych', minutes:45, points:30,
+    tasks:[
+      {id:'r1', title:'Zadanie I — wybór a/b/c', type:'mc', n:4},
+      {id:'r2', title:'Zadanie II — TAK / NIE', type:'mc', opts:['TAK','NIE'], n:7},
+      {id:'r3', title:'Zadanie III — brakujące fragmenty', type:'match', letters:[1,2,3,4,5,6,7,8], options:['A','B','C','D','E','F','G','H','I']},
+      {id:'r4', title:'Zadanie IV — dopasowanie tytułów', type:'match', letters:[1,2,3,4,5,6], options:['A','B','C','D','E','F','G']},
+      {id:'r5', title:'Zadanie V — uzupełnianie tekstu słowami z ramki', type:'open', n:10}
+    ]},
+  { id:'grammar', label:'Poprawność gramatyczna', minutes:45, points:30,
+    tasks:[
+      {id:'g1', title:'Zadanie I — odmiana rzeczowników/przymiotników/zaimków', type:'open', n:10},
+      {id:'g2', title:'Zadanie II — spójniki z ramki (1 zbędny)', type:'open', n:5},
+      {id:'g3', title:'Zadanie III — stopniowanie', type:'open', n:5},
+      {id:'g4', title:'Zadanie IV — czas teraźniejszy i przeszły', type:'open', n:10},
+      {id:'g5', title:'Zadanie V — pytania o podkreśloną część zdania', type:'freeform', n:5},
+      {id:'g6', title:'Zadanie VI — przekształcenia zdań', type:'freeform', n:5},
+      {id:'g7', title:'Zadanie VII — aspekt i tryby', type:'open', n:10},
+      {id:'g8', title:'Zadanie VIII — przyimki z ramki (1 zbędny)', type:'open', n:5}
+    ]},
+  { id:'writing', label:'Pisanie', minutes:75, points:30, tasks:[] }
+],
+'B1-2017': [
+  { id:'listening', label:'Rozumienie ze słuchu', minutes:25, points:30,
+    tasks:[
+      {id:'l1', title:'Zadanie I — wybór a/b/c (krótkie wypowiedzi)', type:'mc', n:14},
+      {id:'l2', title:'Zadanie II — uzupełnianie brakujących słów', type:'open', n:7},
+      {id:'l3', title:'Zadanie III — wybór a/b/c', type:'mc', n:5},
+      {id:'l4', title:'Zadanie IV — Prawda / Fałsz', type:'mc', opts:['P','F'], n:6},
+      {id:'l5', title:'Zadanie V — dopasowanie kolumn', type:'match', letters:[1,2,3,4,5], options:['A','B','C','D','E','F']}
+    ]},
+  { id:'reading', label:'Rozumienie tekstów pisanych', minutes:45, points:30,
+    tasks:[
+      {id:'r1', title:'Zadanie I — wybór a/b/c', type:'mc', n:5},
+      {id:'r2', title:'Zadanie II — Prawda / Fałsz', type:'mc', opts:['P','F'], n:7},
+      {id:'r3', title:'Zadanie III — brakujące fragmenty', type:'match', letters:[1,2,3,4,5,6,7], options:['A','B','C','D','E','F','G','H']},
+      {id:'r4', title:'Zadanie IV — dopasowanie kolumn', type:'match', letters:[1,2,3,4,5,6,7], options:['A','B','C','D','E','F','G','H']},
+      {id:'r5', title:'Zadanie V — wybór słowa', type:'open', n:8}
+    ]},
+  { id:'grammar', label:'Poprawność gramatyczna', minutes:45, points:30,
+    tasks:[
+      {id:'g1', title:'Zadanie I — odmiana rzeczowników/przymiotników/zaimków/przyimki', type:'open', n:10},
+      {id:'g2', title:'Zadanie II — stopniowanie', type:'open', n:5},
+      {id:'g3', title:'Zadanie III — aspekt i tryby', type:'open', n:10},
+      {id:'g4', title:'Zadanie IV — pytania o podkreśloną część zdania', type:'freeform', n:5},
+      {id:'g5', title:'Zadanie V — czas teraźniejszy/przeszły/przyszły', type:'open', n:10},
+      {id:'g6', title:'Zadanie VI — spójniki/przyimki z ramki (1 zbędny)', type:'open', n:5},
+      {id:'g7', title:'Zadanie VII — przekształcenia zdań', type:'freeform', n:5}
+    ]},
+  { id:'writing', label:'Pisanie', minutes:75, points:30, tasks:[] }
+],
+'B1-DM-2017': [
+  { id:'listening', label:'Rozumienie ze słuchu', minutes:30, points:30,
+    tasks:[
+      {id:'l1', title:'Zadanie I — wybór symbolu A/B/C', type:'mc', n:8},
+      {id:'l2', title:'Zadanie II — wybór a/b/c (o zawodach)', type:'mc', n:4},
+      {id:'l3', title:'Zadanie III — TAK / NIE (radio UJOT FM)', type:'mc', opts:['TAK','NIE'], n:6},
+      {id:'l4', title:'Zadanie IV — dyscypliny sportowe osób (możliwe kilka na osobę)', type:'open', n:8},
+      {id:'l5', title:'Zadanie V — dopasowanie kół/klubów do terminów', type:'match', letters:[1,2,3,4,5,6,7,8], options:['A','B','C','D','E','F','G','H','I']}
+    ]},
+  { id:'reading', label:'Rozumienie tekstów pisanych z gramatyką', minutes:60, points:40,
+    tasks:[
+      {id:'r1', title:'Zadanie I — forma wyrazu + wybór a/b/c (6 tekstów)', type:'mc', n:6},
+      {id:'r2', title:'Zadanie II — wybór zakończenia zdania', type:'mc', n:5},
+      {id:'r3', title:'Zadanie III — wybór właściwej odpowiedzi (dialogi)', type:'mc', n:6},
+      {id:'r4', title:'Zadanie IV — TAK / NIE (młoda podróżniczka)', type:'mc', opts:['TAK','NIE'], n:7},
+      {id:'r5', title:'Zadanie V — brakujące fragmenty (wywiad)', type:'match', letters:[1,2,3,4,5,6,7,8], options:['A','B','C','D','E','F','G','H','I']},
+      {id:'r6', title:'Zadanie VI — wybór słowa (gimnazjalista jako konsument)', type:'open', n:8},
+      {id:'r7', title:'Zadanie VII — wybór słowa (o Harrym Potterze)', type:'open', n:8}
+    ]},
+  { id:'writing', label:'Pisanie', minutes:60, points:30, tasks:[] }
+],
+'B1-DM-2019': [
+  { id:'listening', label:'Rozumienie ze słuchu', minutes:30, points:30,
+    tasks:[
+      {id:'l1', title:'Zadanie I — wybór symbolu A/B/C', type:'mc', n:8},
+      {id:'l2', title:'Zadanie II — wybór a/b/c (wędrówki kotów)', type:'mc', n:4},
+      {id:'l3', title:'Zadanie III — TAK / NIE (bieganie)', type:'mc', opts:['TAK','NIE'], n:6},
+      {id:'l4', title:'Zadanie IV — typy tekstów wg osób (2–3 litery na osobę)', type:'open', n:8},
+      {id:'l5', title:'Zadanie V — wybór a/b/c (wiadomość głosowa)', type:'mc', n:8}
+    ]},
+  { id:'reading', label:'Rozumienie tekstów pisanych z gramatyką', minutes:60, points:40,
+    tasks:[
+      {id:'r1', title:'Zadanie I — forma wyrazu + wybór a/b/c (6 tekstów)', type:'mc', n:6},
+      {id:'r2', title:'Zadanie II — wybór zakończenia zdania', type:'mc', n:5},
+      {id:'r3', title:'Zadanie III — wybór właściwej reakcji (dialog)', type:'mc', n:6},
+      {id:'r4', title:'Zadanie IV — TAK / NIE (Reksio)', type:'mc', opts:['TAK','NIE'], n:7},
+      {id:'r5', title:'Zadanie V — brakujące fragmenty (wywiad z biegaczką)', type:'match', letters:[1,2,3,4,5,6,7,8], options:['A','B','C','D','E','F','G','H','I']},
+      {id:'r6', title:'Zadanie VI — wybór słowa (u weterynarza)', type:'open', n:8},
+      {id:'r7', title:'Zadanie VII — wybór słowa (Akademia Pana Kleksa)', type:'open', n:8}
+    ]},
+  { id:'writing', label:'Pisanie', minutes:60, points:30, tasks:[] }
+],
+'B2-DM-2018': [
+  { id:'listening', label:'Rozumienie ze słuchu', minutes:30, points:30,
+    tasks:[
+      {id:'l1', title:'Zadanie I — temat reklamy (wybór A/B/C)', type:'mc', n:7},
+      {id:'l2', title:'Zadanie II — TAK / NIE (komputery)', type:'mc', opts:['TAK','NIE'], n:7},
+      {id:'l3', title:'Zadanie III — wybór a/b/c (sukces licealistek)', type:'mc', n:5},
+      {id:'l4', title:'Zadanie IV — kalendarz Pawła (co robi / kiedy spotkanie)', type:'open', n:6},
+      {id:'l5', title:'Zadanie V — odpowiedzi otwarte (wywiad o kawie)', type:'open', n:5}
+    ]},
+  { id:'reading', label:'Rozumienie tekstów pisanych', minutes:60, points:30,
+    tasks:[
+      {id:'r1', title:'Zadanie I — dopasowanie tytułów (2 zbędne)', type:'match', letters:[1,2,3,4,5,6,7,8], options:['A','B','C','D','E','F','G','H','I','J','K']},
+      {id:'r2', title:'Zadanie II — brakujące zdania (2 zbędne)', type:'match', letters:[1,2,3,4,5], options:['A','B','C','D','E','F','G','H']},
+      {id:'r3', title:'Zadanie III — TAK / NIE (opowiadanie)', type:'mc', opts:['TAK','NIE'], n:6},
+      {id:'r4', title:'Zadanie IV — wybór a/b/c (recenzja komiksu)', type:'mc', n:6},
+      {id:'r5', title:'Zadanie V — kto to powiedział (możliwe kilka osób)', type:'open', n:6}
+    ]},
+  { id:'grammar', label:'Poprawność gramatyczna', minutes:60, points:40,
+    tasks:[
+      {id:'g1', title:'Zadanie I — imiesłowy', type:'open', n:8},
+      {id:'g2', title:'Zadanie II — przyimki z ramki (1 zbędny)', type:'open', n:8},
+      {id:'g3', title:'Zadanie III — odmiana i liczebniki', type:'open', n:14},
+      {id:'g4', title:'Zadanie IV — spójniki', type:'open', n:8},
+      {id:'g5', title:'Zadanie V — aspekt, czas przeszły/przyszły', type:'open', n:7},
+      {id:'g6', title:'Zadanie VI — słowotwórstwo', type:'open', n:5},
+      {id:'g7', title:'Zadanie VII — stopniowanie', type:'open', n:8},
+      {id:'g8', title:'Zadanie VIII — transformacje zdań', type:'freeform', n:5}
+    ]},
+  { id:'writing', label:'Pisanie', minutes:90, points:40, tasks:[] }
+],
+'A2': [
+  { id:'listening', label:'Rozumienie ze słuchu', minutes:25, points:30,
+    tasks:[
+      {id:'l1', title:'Zadanie I — kto / gdzie to mówi (wybór a/b/c)', type:'mc', n:10},
+      {id:'l2', title:'Zadanie II — Prawda / Fałsz (linia tramwajowa)', type:'mc', opts:['P','F'], n:5},
+      {id:'l3', title:'Zadanie III — dopasowanie osób do ilustracji (2 zbędne)', type:'match', letters:[1,2,3,4,5], options:['A','B','C','D','E','F','G','H']},
+      {id:'l4', title:'Zadanie IV — dopasowanie wiadomości do osób', type:'match', letters:[1,2,3,4,5], options:['A','B','C','D','E','F']},
+      {id:'l5', title:'Zadanie V — uzupełnianie liczb/dat (Noc Muzeów)', type:'open', n:5}
+    ]},
+  { id:'reading', label:'Rozumienie tekstów pisanych z gramatyką', minutes:45, points:30,
+    tasks:[
+      {id:'r1', title:'Zadanie I — poprawna forma wyrazu (tekst o Spodku)', type:'open', n:10},
+      {id:'r2', title:'Zadanie II — uzupełnianie słowami z ramki', type:'open', n:10},
+      {id:'r3', title:'Zadanie III — napisy, wybór a/b/c', type:'mc', n:5},
+      {id:'r4', title:'Zadanie IV — krótkie teksty, wybór a/b/c', type:'mc', n:5},
+      {id:'r5', title:'Zadanie V — ankieta na podstawie tekstu', type:'open', n:10},
+      {id:'r6', title:'Zadanie VI — dopasowanie ilustracji do opisów (1 zbędny)', type:'match', letters:[1,2,3,4,5], options:['A','B','C','D','E','F','G']}
+    ]},
+  { id:'writing', label:'Pisanie', minutes:45, points:20, tasks:[] }
+]
+,
+'B2-2024-02': [
+  { id:'listening', label:'Rozumienie ze słuchu', minutes:40, points:40,
+    tasks:[
+      {id:'l1', title:'Zadanie I — wybór a/b/c (3 nagrania, po 2 pytania)', type:'mc', n:6},
+      {id:'l2', title:'Zadanie II — TAK / NIE (kariera Świtalskiego)', type:'mc', opts:['TAK','NIE'], n:10},
+      {id:'l3', title:'Zadanie III — którego miejsca dotyczy opis (A–D, możliwe kilka)', type:'open', n:6},
+      {id:'l4', title:'Zadanie IV — wybór a/b/c (Noc Politechniki)', type:'mc', n:8},
+      {id:'l5', title:'Zadanie V — odpowiedzi otwarte (bobry)', type:'open', n:8}
+    ]},
+  { id:'reading', label:'Rozumienie tekstów pisanych', minutes:60, points:40,
+    tasks:[
+      {id:'r1', title:'Zadanie I — wybór a/b/c', type:'mc', n:5},
+      {id:'r2', title:'Zadanie II — brakujące fragmenty', type:'match', letters:[1,2,3,4,5,6,7,8,9,10], options:['A','B','C','D','E','F','G','H','I','J','K']},
+      {id:'r3', title:'Zadanie III — dopasowanie kolumn (jak skutecznie się uczyć)', type:'match', letters:[1,2,3,4,5,6,7,8,9,10], options:['A','B','C','D','E','F','G','H','I','J','K']},
+      {id:'r4', title:'Zadanie IV — wybór słowa', type:'open', n:10},
+      {id:'r5', title:'Zadanie V — do których roślin pasuje informacja (możliwe kilka)', type:'open', n:6}
+    ]},
+  { id:'grammar', label:'Poprawność gramatyczna', minutes:60, points:40,
+    tasks:[
+      {id:'g1', title:'Zadanie I — imiesłowy', type:'open', n:10},
+      {id:'g2', title:'Zadanie II — przyimki z ramki (2 zbędne)', type:'open', n:10},
+      {id:'g3', title:'Zadanie III — strona bierna / nieosobowe', type:'open', n:10},
+      {id:'g4', title:'Zadanie IV — odmiana rzeczowników/przymiotników/zaimków', type:'open', n:10},
+      {id:'g5', title:'Zadanie V — aspekt, czas przeszły i przyszły', type:'open', n:10},
+      {id:'g6', title:'Zadanie VI — odmiana liczebników i rzeczowników', type:'open', n:10},
+      {id:'g7', title:'Zadanie VII — stopniowanie', type:'open', n:10},
+      {id:'g8', title:'Zadanie VIII — przekształcenia zdań', type:'freeform', n:5}
+    ]},
+  { id:'writing', label:'Pisanie', minutes:90, points:40, tasks:[] }
+],
+'B1-2024-02': [
+  { id:'listening', label:'Rozumienie ze słuchu', minutes:30, points:30,
+    tasks:[
+      {id:'l1', title:'Zadanie I — wybór a/b/c (krótkie wypowiedzi)', type:'mc', n:14},
+      {id:'l2', title:'Zadanie II — wybór a/b/c (dialogi)', type:'mc', n:6},
+      {id:'l3', title:'Zadanie III — wybór a/b/c (firma Wtórpol)', type:'mc', n:5},
+      {id:'l4', title:'Zadanie IV — TAK / NIE (aplikacja Pola)', type:'mc', opts:['TAK','NIE'], n:6},
+      {id:'l5', title:'Zadanie V — dopasowanie opinii (możliwe kilka)', type:'open', n:6}
+    ]},
+  { id:'reading', label:'Rozumienie tekstów pisanych', minutes:40, points:30,
+    tasks:[
+      {id:'r1', title:'Zadanie I — wybór a/b/c', type:'mc', n:5},
+      {id:'r2', title:'Zadanie II — TAK / NIE', type:'mc', opts:['TAK','NIE'], n:6},
+      {id:'r3', title:'Zadanie III — brakujące fragmenty', type:'match', letters:[1,2,3,4,5,6,7], options:['A','B','C','D','E','F','G','H']},
+      {id:'r4', title:'Zadanie IV — dopasowanie tytułów', type:'match', letters:[1,2,3,4,5,6,7], options:['A','B','C','D','E','F','G','H']},
+      {id:'r5', title:'Zadanie V — wybór słowa', type:'open', n:10}
+    ]},
+  { id:'grammar', label:'Poprawność gramatyczna', minutes:45, points:30,
+    tasks:[
+      {id:'g1', title:'Zadanie I — odmiana rzeczowników/przymiotników/zaimków', type:'open', n:10},
+      {id:'g2', title:'Zadanie II — spójniki z ramki (1 zbędny)', type:'open', n:5},
+      {id:'g3', title:'Zadanie III — stopniowanie', type:'open', n:5},
+      {id:'g4', title:'Zadanie IV — czas teraźniejszy i przyszły', type:'open', n:10},
+      {id:'g5', title:'Zadanie V — pytania o podkreśloną część zdania', type:'freeform', n:5},
+      {id:'g6', title:'Zadanie VI — przekształcenia zdań', type:'freeform', n:5},
+      {id:'g7', title:'Zadanie VII — aspekt i tryby', type:'open', n:10},
+      {id:'g8', title:'Zadanie VIII — przyimki z ramki (1 zbędny)', type:'open', n:5}
+    ]},
+  { id:'writing', label:'Pisanie', minutes:75, points:30, tasks:[] }
+],
+'B1-2024-04': [
+  { id:'listening', label:'Rozumienie ze słuchu', minutes:30, points:30,
+    tasks:[
+      {id:'l1', title:'Zadanie I — wybór a/b/c (krótkie wypowiedzi)', type:'mc', n:14},
+      {id:'l2', title:'Zadanie II — wybór a/b/c (dialogi)', type:'mc', n:6},
+      {id:'l3', title:'Zadanie III — wybór a/b/c (praca stewardessy)', type:'mc', n:5},
+      {id:'l4', title:'Zadanie IV — TAK / NIE (sztuczna inteligencja)', type:'mc', opts:['TAK','NIE'], n:6},
+      {id:'l5', title:'Zadanie V — dopasowanie opinii o śniadaniach (możliwe kilka)', type:'open', n:6}
+    ]},
+  { id:'reading', label:'Rozumienie tekstów pisanych', minutes:40, points:30,
+    tasks:[
+      {id:'r1', title:'Zadanie I — wybór a/b/c', type:'mc', n:5},
+      {id:'r2', title:'Zadanie II — TAK / NIE', type:'mc', opts:['TAK','NIE'], n:6},
+      {id:'r3', title:'Zadanie III — brakujące fragmenty', type:'match', letters:[1,2,3,4,5,6,7], options:['A','B','C','D','E','F','G','H']},
+      {id:'r4', title:'Zadanie IV — dopasowanie tytułów (higiena cyfrowa)', type:'match', letters:[1,2,3,4,5,6,7], options:['A','B','C','D','E','F','G','H']},
+      {id:'r5', title:'Zadanie V — wybór słowa', type:'open', n:10}
+    ]},
+  { id:'grammar', label:'Poprawność gramatyczna', minutes:45, points:30,
+    tasks:[
+      {id:'g1', title:'Zadanie I — odmiana rzeczowników/przymiotników/zaimków', type:'open', n:10},
+      {id:'g2', title:'Zadanie II — spójniki z ramki (1 zbędny)', type:'open', n:5},
+      {id:'g3', title:'Zadanie III — stopniowanie', type:'open', n:5},
+      {id:'g4', title:'Zadanie IV — czas teraźniejszy i przeszły', type:'open', n:10},
+      {id:'g5', title:'Zadanie V — pytania o podkreśloną część zdania', type:'freeform', n:5},
+      {id:'g6', title:'Zadanie VI — przekształcenia zdań', type:'freeform', n:5},
+      {id:'g7', title:'Zadanie VII — aspekt i tryby', type:'open', n:10},
+      {id:'g8', title:'Zadanie VIII — przyimki z ramki (1 zbędny)', type:'open', n:5}
+    ]},
+  { id:'writing', label:'Pisanie', minutes:75, points:30, tasks:[] }
+],
+'B1-2024-06': [
+  { id:'listening', label:'Rozumienie ze słuchu', minutes:30, points:30,
+    tasks:[
+      {id:'l1', title:'Zadanie I — wybór a/b/c (krótkie wypowiedzi)', type:'mc', n:14},
+      {id:'l2', title:'Zadanie II — wybór a/b/c (dialogi)', type:'mc', n:6},
+      {id:'l3', title:'Zadanie III — wybór a/b/c', type:'mc', n:5},
+      {id:'l4', title:'Zadanie IV — TAK / NIE', type:'mc', opts:['TAK','NIE'], n:6},
+      {id:'l5', title:'Zadanie V — dopasowanie opinii (możliwe kilka)', type:'open', n:6}
+    ]},
+  { id:'reading', label:'Rozumienie tekstów pisanych', minutes:40, points:30,
+    tasks:[
+      {id:'r1', title:'Zadanie I — wybór a/b/c', type:'mc', n:5},
+      {id:'r2', title:'Zadanie II — TAK / NIE', type:'mc', opts:['TAK','NIE'], n:6},
+      {id:'r3', title:'Zadanie III — brakujące fragmenty', type:'match', letters:[1,2,3,4,5,6,7], options:['A','B','C','D','E','F','G','H']},
+      {id:'r4', title:'Zadanie IV — dopasowanie tytułów', type:'match', letters:[1,2,3,4,5,6,7], options:['A','B','C','D','E','F','G','H']},
+      {id:'r5', title:'Zadanie V — wybór słowa', type:'open', n:10}
+    ]},
+  { id:'grammar', label:'Poprawność gramatyczna', minutes:45, points:30,
+    tasks:[
+      {id:'g1', title:'Zadanie I — odmiana rzeczowników/przymiotników/zaimków', type:'open', n:10},
+      {id:'g2', title:'Zadanie II — spójniki z ramki (1 zbędny)', type:'open', n:5},
+      {id:'g3', title:'Zadanie III — stopniowanie', type:'open', n:5},
+      {id:'g4', title:'Zadanie IV — czas teraźniejszy i przeszły/przyszły', type:'open', n:10},
+      {id:'g5', title:'Zadanie V — pytania o podkreśloną część zdania', type:'freeform', n:5},
+      {id:'g6', title:'Zadanie VI — przekształcenia zdań', type:'freeform', n:5},
+      {id:'g7', title:'Zadanie VII — aspekt i tryby', type:'open', n:10},
+      {id:'g8', title:'Zadanie VIII — przyimki z ramki (1 zbędny)', type:'open', n:5}
+    ]},
+  { id:'writing', label:'Pisanie', minutes:75, points:30, tasks:[] }
+],
+'B1-DM-2024-06': [
+  { id:'listening', label:'Rozumienie ze słuchu', minutes:30, points:30,
+    tasks:[
+      {id:'l1', title:'Zadanie I — wybór symbolu A/B/C', type:'mc', n:8},
+      {id:'l2', title:'Zadanie II — wybór a/b/c (praca w radiu)', type:'mc', n:4},
+      {id:'l3', title:'Zadanie III — TAK / NIE (sukcesy matematyczne)', type:'mc', opts:['TAK','NIE'], n:6},
+      {id:'l4', title:'Zadanie IV — prace domowe osób (2–3 litery na osobę)', type:'open', n:8},
+      {id:'l5', title:'Zadanie V — wybór a/b/c (wiadomość głosowa)', type:'mc', n:8}
+    ]},
+  { id:'reading', label:'Rozumienie tekstów pisanych z gramatyką', minutes:60, points:40,
+    tasks:[
+      {id:'r1', title:'Zadanie I — forma wyrazu + wybór a/b/c (6 tekstów)', type:'mc', n:6},
+      {id:'r2', title:'Zadanie II — wybór zakończenia zdania (czekolada)', type:'mc', n:5},
+      {id:'r3', title:'Zadanie III — wybór właściwej reakcji (dialogi)', type:'mc', n:6},
+      {id:'r4', title:'Zadanie IV — TAK / NIE (wypadek drogowy)', type:'mc', opts:['TAK','NIE'], n:7},
+      {id:'r5', title:'Zadanie V — brakujące fragmenty (wywiad z prof. Miodkiem)', type:'match', letters:[1,2,3,4,5,6,7,8], options:['A','B','C','D','E','F','G','H','I']},
+      {id:'r6', title:'Zadanie VI — wybór słowa (koncert charytatywny)', type:'open', n:8},
+      {id:'r7', title:'Zadanie VII — wybór słowa (opowiadanie o zakupach)', type:'open', n:8}
+    ]},
+  { id:'writing', label:'Pisanie', minutes:60, points:30, tasks:[] }
+],
+'B2-2024-06': [
+  { id:'listening', label:'Rozumienie ze słuchu', minutes:40, points:40,
+    tasks:[
+      {id:'l1', title:'Zadanie I — wybór a/b/c (3 nagrania, po 2 pytania)', type:'mc', n:6},
+      {id:'l2', title:'Zadanie II — TAK / NIE', type:'mc', opts:['TAK','NIE'], n:10},
+      {id:'l3', title:'Zadanie III — którego miejsca dotyczy opis (możliwe kilka)', type:'open', n:6},
+      {id:'l4', title:'Zadanie IV — wybór a/b/c', type:'mc', n:8},
+      {id:'l5', title:'Zadanie V — odpowiedzi otwarte', type:'open', n:8}
+    ]},
+  { id:'reading', label:'Rozumienie tekstów pisanych', minutes:60, points:40,
+    tasks:[
+      {id:'r1', title:'Zadanie I — wybór a/b/c', type:'mc', n:5},
+      {id:'r2', title:'Zadanie II — brakujące fragmenty', type:'match', letters:[1,2,3,4,5,6,7,8,9,10], options:['A','B','C','D','E','F','G','H','I','J','K']},
+      {id:'r3', title:'Zadanie III — dopasowanie kolumn', type:'match', letters:[1,2,3,4,5,6,7,8,9,10], options:['A','B','C','D','E','F','G','H','I','J','K']},
+      {id:'r4', title:'Zadanie IV — wybór słowa', type:'open', n:10},
+      {id:'r5', title:'Zadanie V — do czego pasuje informacja (możliwe kilka)', type:'open', n:6}
+    ]},
+  { id:'grammar', label:'Poprawność gramatyczna', minutes:60, points:40,
+    tasks:[
+      {id:'g1', title:'Zadanie I — imiesłowy', type:'open', n:10},
+      {id:'g2', title:'Zadanie II — przyimki z ramki (2 zbędne)', type:'open', n:10},
+      {id:'g3', title:'Zadanie III — strona bierna / nieosobowe', type:'open', n:10},
+      {id:'g4', title:'Zadanie IV — odmiana rzeczowników/przymiotników/zaimków', type:'open', n:10},
+      {id:'g5', title:'Zadanie V — aspekt, czas przeszły i przyszły', type:'open', n:10},
+      {id:'g6', title:'Zadanie VI — odmiana liczebników i rzeczowników', type:'open', n:10},
+      {id:'g7', title:'Zadanie VII — stopniowanie', type:'open', n:10},
+      {id:'g8', title:'Zadanie VIII — przekształcenia zdań', type:'freeform', n:5}
+    ]},
+  { id:'writing', label:'Pisanie', minutes:90, points:40, tasks:[] }
+],
+'B2-DM-2024-06': [
+  { id:'listening', label:'Rozumienie ze słuchu', minutes:40, points:30,
+    tasks:[
+      {id:'l1', title:'Zadanie I — temat nagrania (wybór A/B/C)', type:'mc', n:7},
+      {id:'l2', title:'Zadanie II — TAK / NIE (pokaz lotów balonów)', type:'mc', opts:['TAK','NIE'], n:7},
+      {id:'l3', title:'Zadanie III — wybór a/b/c (turystyka w Krakowie)', type:'mc', n:5},
+      {id:'l4', title:'Zadanie IV — dopasowanie osób (1–4 → a–f)', type:'match', letters:['a','b','c','d','e','f'], options:[1,2,3,4]},
+      {id:'l5', title:'Zadanie V — odpowiedzi otwarte (łyżwiarz Piotr Michalski)', type:'open', n:5}
+    ]},
+  { id:'reading', label:'Rozumienie tekstów pisanych', minutes:60, points:30,
+    tasks:[
+      {id:'r1', title:'Zadanie I — dopasowanie tytułów (2 zbędne)', type:'match', letters:[1,2,3,4,5,6,7], options:['A','B','C','D','E','F','G','H','I','J']},
+      {id:'r2', title:'Zadanie II — brakujące zdania (2 zbędne)', type:'match', letters:[1,2,3,4,5], options:['A','B','C','D','E','F','G','H']},
+      {id:'r3', title:'Zadanie III — TAK / NIE (odkrycie asteroid)', type:'mc', opts:['TAK','NIE'], n:6},
+      {id:'r4', title:'Zadanie IV — wybór a/b/c (fragment powieści)', type:'mc', n:6},
+      {id:'r5', title:'Zadanie V — której osoby dotyczy informacja (możliwe kilka)', type:'open', n:6}
+    ]},
+  { id:'grammar', label:'Poprawność gramatyczna', minutes:60, points:40,
+    tasks:[
+      {id:'g1', title:'Zadanie I — imiesłowy', type:'open', n:8},
+      {id:'g2', title:'Zadanie II — przyimki z ramki (1 zbędny)', type:'open', n:8},
+      {id:'g3', title:'Zadanie III — odmiana i liczebniki', type:'open', n:14},
+      {id:'g4', title:'Zadanie IV — wskaźniki zespolenia', type:'open', n:8},
+      {id:'g5', title:'Zadanie V — aspekt, czas przeszły/przyszły', type:'open', n:7},
+      {id:'g6', title:'Zadanie VI — słowotwórstwo', type:'open', n:5},
+      {id:'g7', title:'Zadanie VII — stopniowanie', type:'open', n:8},
+      {id:'g8', title:'Zadanie VIII — transformacje zdań', type:'freeform', n:5}
+    ]},
+  { id:'writing', label:'Pisanie', minutes:90, points:40, tasks:[] }
+]
+,
+'B1-2023-02': [
+  { id:'listening', label:'Rozumienie ze słuchu', minutes:30, points:30,
+    tasks:[
+      {id:'l1', title:'Zadanie I — wybór a/b/c', type:'mc', n:14},
+      {id:'l2', title:'Zadanie II — wybór a/b/c (dialogi)', type:'mc', n:8},
+      {id:'l3', title:'Zadanie III — wybór a/b/c (wolontariat w Tatrach)', type:'mc', n:5},
+      {id:'l4', title:'Zadanie IV — TAK / NIE (produkty bio)', type:'mc', opts:['TAK','NIE'], n:5},
+      {id:'l5', title:'Zadanie V — dopasowanie opinii (A–D, możliwe kilka)', type:'open', n:4}
+    ]},
+  { id:'reading', label:'Rozumienie tekstów pisanych', minutes:40, points:30,
+    tasks:[
+      {id:'r1', title:'Zadanie I — wybór a/b/c', type:'mc', n:5},
+      {id:'r2', title:'Zadanie II — TAK / NIE', type:'mc', opts:['TAK','NIE'], n:6},
+      {id:'r3', title:'Zadanie III — brakujące fragmenty', type:'match', letters:[1,2,3,4,5,6,7], options:['A','B','C','D','E','F','G','H']},
+      {id:'r4', title:'Zadanie IV — dopasowanie tytułów', type:'match', letters:[1,2,3,4,5,6,7], options:['A','B','C','D','E','F','G','H']},
+      {id:'r5', title:'Zadanie V — wybór słowa', type:'open', n:10}
+    ]},
+  { id:'grammar', label:'Poprawność gramatyczna', minutes:45, points:30,
+    tasks:[
+      {id:'g1', title:'Zadanie I — odmiana rzeczowników/przymiotników/zaimków', type:'open', n:10},
+      {id:'g2', title:'Zadanie II — spójniki z ramki (1 zbędny)', type:'open', n:5},
+      {id:'g3', title:'Zadanie III — stopniowanie', type:'open', n:5},
+      {id:'g4', title:'Zadanie IV — czas teraźniejszy i przeszły', type:'open', n:10},
+      {id:'g5', title:'Zadanie V — pytania o podkreśloną część zdania', type:'freeform', n:5},
+      {id:'g6', title:'Zadanie VI — przekształcenia zdań', type:'freeform', n:5},
+      {id:'g7', title:'Zadanie VII — aspekt i tryby', type:'open', n:10},
+      {id:'g8', title:'Zadanie VIII — przyimki z ramki (1 zbędny)', type:'open', n:5}
+    ]},
+  { id:'writing', label:'Pisanie', minutes:75, points:30, tasks:[] }
+],
+'B2-2023-02': [
+  { id:'listening', label:'Rozumienie ze słuchu', minutes:40, points:40,
+    tasks:[
+      {id:'l1', title:'Zadanie I — wybór a/b/c (3 nagrania, po 2 pytania)', type:'mc', n:6},
+      {id:'l2', title:'Zadanie II — wybór a/b/c (o prof. Miodku)', type:'mc', n:7},
+      {id:'l3', title:'Zadanie III — TAK / NIE (infrastruktura rowerowa)', type:'mc', opts:['TAK','NIE'], n:9},
+      {id:'l4', title:'Zadanie IV — którego zwierzęcia dotyczy opis (możliwe kilka)', type:'open', n:6},
+      {id:'l5', title:'Zadanie V — odpowiedzi otwarte (inwestycja nadmorska)', type:'open', n:8}
+    ]},
+  { id:'reading', label:'Rozumienie tekstów pisanych', minutes:60, points:40,
+    tasks:[
+      {id:'r1', title:'Zadanie I — wybór a/b/c', type:'mc', n:5},
+      {id:'r2', title:'Zadanie II — brakujące fragmenty', type:'match', letters:[1,2,3,4,5,6,7,8,9,10], options:['A','B','C','D','E','F','G','H','I','J','K']},
+      {id:'r3', title:'Zadanie III — dopasowanie kolumn (dobre zdjęcie z wakacji)', type:'match', letters:[1,2,3,4,5,6,7,8,9,10], options:['A','B','C','D','E','F','G','H','I','J','K']},
+      {id:'r4', title:'Zadanie IV — TAK / NIE / BI', type:'mc', opts:['TAK','NIE','BI'], n:10},
+      {id:'r5', title:'Zadanie V — uzupełnianie słowami z ramki', type:'open', n:10}
+    ]},
+  { id:'grammar', label:'Poprawność gramatyczna', minutes:60, points:40,
+    tasks:[
+      {id:'g1', title:'Zadanie I — imiesłowy', type:'open', n:10},
+      {id:'g2', title:'Zadanie II — spójniki z ramki', type:'open', n:10},
+      {id:'g3', title:'Zadanie III — odmiana liczebników i rzeczowników', type:'open', n:10},
+      {id:'g4', title:'Zadanie IV — formy nieosobowe i strona bierna', type:'open', n:10},
+      {id:'g5', title:'Zadanie V — odmiana rzeczowników/przymiotników/zaimków', type:'open', n:10},
+      {id:'g6', title:'Zadanie VI — aspekt, czas przeszły i przyszły', type:'open', n:10},
+      {id:'g7', title:'Zadanie VII — stopniowanie', type:'open', n:10},
+      {id:'g8', title:'Zadanie VIII — przekształcenia zdań', type:'freeform', n:5}
+    ]},
+  { id:'writing', label:'Pisanie', minutes:90, points:40, tasks:[] }
+],
+'B1-2023-04': [
+  { id:'listening', label:'Rozumienie ze słuchu', minutes:30, points:30,
+    tasks:[
+      {id:'l1', title:'Zadanie I — wybór a/b/c', type:'mc', n:14},
+      {id:'l2', title:'Zadanie II — wybór a/b/c (dialogi)', type:'mc', n:8},
+      {id:'l3', title:'Zadanie III — wybór a/b/c', type:'mc', n:5},
+      {id:'l4', title:'Zadanie IV — TAK / NIE', type:'mc', opts:['TAK','NIE'], n:5},
+      {id:'l5', title:'Zadanie V — dopasowanie opinii (A–D, możliwe kilka)', type:'open', n:4}
+    ]},
+  { id:'reading', label:'Rozumienie tekstów pisanych', minutes:40, points:30,
+    tasks:[
+      {id:'r1', title:'Zadanie I — wybór a/b/c', type:'mc', n:5},
+      {id:'r2', title:'Zadanie II — TAK / NIE', type:'mc', opts:['TAK','NIE'], n:6},
+      {id:'r3', title:'Zadanie III — brakujące fragmenty', type:'match', letters:[1,2,3,4,5,6,7], options:['A','B','C','D','E','F','G','H']},
+      {id:'r4', title:'Zadanie IV — dopasowanie tytułów', type:'match', letters:[1,2,3,4,5,6,7], options:['A','B','C','D','E','F','G','H']},
+      {id:'r5', title:'Zadanie V — wybór słowa', type:'open', n:10}
+    ]},
+  { id:'grammar', label:'Poprawność gramatyczna', minutes:45, points:30,
+    tasks:[
+      {id:'g1', title:'Zadanie I — odmiana rzeczowników/przymiotników/zaimków', type:'open', n:10},
+      {id:'g2', title:'Zadanie II — spójniki z ramki (1 zbędny)', type:'open', n:5},
+      {id:'g3', title:'Zadanie III — stopniowanie', type:'open', n:5},
+      {id:'g4', title:'Zadanie IV — czas teraźniejszy i przeszły', type:'open', n:10},
+      {id:'g5', title:'Zadanie V — pytania o podkreśloną część zdania', type:'freeform', n:5},
+      {id:'g6', title:'Zadanie VI — przekształcenia zdań', type:'freeform', n:5},
+      {id:'g7', title:'Zadanie VII — aspekt i tryby', type:'open', n:10},
+      {id:'g8', title:'Zadanie VIII — przyimki z ramki (1 zbędny)', type:'open', n:5}
+    ]},
+  { id:'writing', label:'Pisanie', minutes:75, points:30, tasks:[] }
+],
+'B1-2023-06': [
+  { id:'listening', label:'Rozumienie ze słuchu', minutes:30, points:30,
+    tasks:[
+      {id:'l1', title:'Zadanie I — wybór a/b/c', type:'mc', n:14},
+      {id:'l2', title:'Zadanie II — wybór a/b/c (dialogi)', type:'mc', n:8},
+      {id:'l3', title:'Zadanie III — wybór a/b/c', type:'mc', n:5},
+      {id:'l4', title:'Zadanie IV — TAK / NIE', type:'mc', opts:['TAK','NIE'], n:5},
+      {id:'l5', title:'Zadanie V — dopasowanie opinii (A–D, możliwe kilka)', type:'open', n:4}
+    ]},
+  { id:'reading', label:'Rozumienie tekstów pisanych', minutes:40, points:30,
+    tasks:[
+      {id:'r1', title:'Zadanie I — wybór a/b/c', type:'mc', n:5},
+      {id:'r2', title:'Zadanie II — TAK / NIE', type:'mc', opts:['TAK','NIE'], n:6},
+      {id:'r3', title:'Zadanie III — brakujące fragmenty', type:'match', letters:[1,2,3,4,5,6,7], options:['A','B','C','D','E','F','G','H']},
+      {id:'r4', title:'Zadanie IV — dopasowanie tytułów', type:'match', letters:[1,2,3,4,5,6,7], options:['A','B','C','D','E','F','G','H']},
+      {id:'r5', title:'Zadanie V — wybór słowa', type:'open', n:10}
+    ]},
+  { id:'grammar', label:'Poprawność gramatyczna', minutes:45, points:30,
+    tasks:[
+      {id:'g1', title:'Zadanie I — odmiana rzeczowników/przymiotników/zaimków', type:'open', n:10},
+      {id:'g2', title:'Zadanie II — spójniki z ramki (1 zbędny)', type:'open', n:5},
+      {id:'g3', title:'Zadanie III — stopniowanie', type:'open', n:5},
+      {id:'g4', title:'Zadanie IV — czas teraźniejszy i przeszły', type:'open', n:10},
+      {id:'g5', title:'Zadanie V — pytania o podkreśloną część zdania', type:'freeform', n:5},
+      {id:'g6', title:'Zadanie VI — przekształcenia zdań', type:'freeform', n:5},
+      {id:'g7', title:'Zadanie VII — aspekt i tryby', type:'open', n:10},
+      {id:'g8', title:'Zadanie VIII — przyimki z ramki (1 zbędny)', type:'open', n:5}
+    ]},
+  { id:'writing', label:'Pisanie', minutes:75, points:30, tasks:[] }
+],
+'B1-DM-2023-06': [
+  { id:'listening', label:'Rozumienie ze słuchu', minutes:30, points:30,
+    tasks:[
+      {id:'l1', title:'Zadanie I — wybór symbolu A/B/C', type:'mc', n:8},
+      {id:'l2', title:'Zadanie II — wybór a/b/c (konkurs dla uczniów)', type:'mc', n:4},
+      {id:'l3', title:'Zadanie III — TAK / NIE (przygotowania do wiosny)', type:'mc', opts:['TAK','NIE'], n:6},
+      {id:'l4', title:'Zadanie IV — praca dla młodzieży wg osób (2–3 litery na osobę)', type:'open', n:8},
+      {id:'l5', title:'Zadanie V — wybór a/b/c (wiadomość głosowa)', type:'mc', n:8}
+    ]},
+  { id:'reading', label:'Rozumienie tekstów pisanych z gramatyką', minutes:60, points:40,
+    tasks:[
+      {id:'r1', title:'Zadanie I — forma wyrazu + wybór a/b/c (6 tekstów)', type:'mc', n:6},
+      {id:'r2', title:'Zadanie II — wybór zakończenia zdania (osiemnastka)', type:'mc', n:5},
+      {id:'r3', title:'Zadanie III — wybór właściwej reakcji (dialogi)', type:'mc', n:6},
+      {id:'r4', title:'Zadanie IV — TAK / NIE (zabytkowy pociąg)', type:'mc', opts:['TAK','NIE'], n:7},
+      {id:'r5', title:'Zadanie V — brakujące fragmenty (Sprzątanie Świata)', type:'match', letters:[1,2,3,4,5,6,7,8], options:['A','B','C','D','E','F','G','H','I']},
+      {id:'r6', title:'Zadanie VI — wybór słowa (zdrowe odżywianie)', type:'open', n:8},
+      {id:'r7', title:'Zadanie VII — wybór słowa (opowiadanie o nastolatku)', type:'open', n:8}
+    ]},
+  { id:'writing', label:'Pisanie', minutes:60, points:30, tasks:[] }
+],
+'B2-2023-06': [
+  { id:'listening', label:'Rozumienie ze słuchu', minutes:40, points:40,
+    tasks:[
+      {id:'l1', title:'Zadanie I — wybór a/b/c (3 nagrania, po 2 pytania)', type:'mc', n:6},
+      {id:'l2', title:'Zadanie II — wybór a/b/c', type:'mc', n:7},
+      {id:'l3', title:'Zadanie III — TAK / NIE', type:'mc', opts:['TAK','NIE'], n:9},
+      {id:'l4', title:'Zadanie IV — którego zwierzęcia dotyczy opis (możliwe kilka)', type:'open', n:6},
+      {id:'l5', title:'Zadanie V — odpowiedzi otwarte', type:'open', n:8}
+    ]},
+  { id:'reading', label:'Rozumienie tekstów pisanych', minutes:60, points:40,
+    tasks:[
+      {id:'r1', title:'Zadanie I — wybór a/b/c', type:'mc', n:5},
+      {id:'r2', title:'Zadanie II — brakujące fragmenty', type:'match', letters:[1,2,3,4,5,6,7,8,9,10], options:['A','B','C','D','E','F','G','H','I','J','K']},
+      {id:'r3', title:'Zadanie III — dopasowanie kolumn', type:'match', letters:[1,2,3,4,5,6,7,8,9,10], options:['A','B','C','D','E','F','G','H','I','J','K']},
+      {id:'r4', title:'Zadanie IV — TAK / NIE / BI', type:'mc', opts:['TAK','NIE','BI'], n:10},
+      {id:'r5', title:'Zadanie V — uzupełnianie słowami z ramki', type:'open', n:10}
+    ]},
+  { id:'grammar', label:'Poprawność gramatyczna', minutes:60, points:40,
+    tasks:[
+      {id:'g1', title:'Zadanie I — imiesłowy', type:'open', n:10},
+      {id:'g2', title:'Zadanie II — spójniki z ramki', type:'open', n:10},
+      {id:'g3', title:'Zadanie III — odmiana liczebników i rzeczowników', type:'open', n:10},
+      {id:'g4', title:'Zadanie IV — formy nieosobowe i strona bierna', type:'open', n:10},
+      {id:'g5', title:'Zadanie V — odmiana rzeczowników/przymiotników/zaimków', type:'open', n:10},
+      {id:'g6', title:'Zadanie VI — aspekt, czas przeszły i przyszły', type:'open', n:10},
+      {id:'g7', title:'Zadanie VII — stopniowanie', type:'open', n:10},
+      {id:'g8', title:'Zadanie VIII — przekształcenia zdań', type:'freeform', n:5}
+    ]},
+  { id:'writing', label:'Pisanie', minutes:90, points:40, tasks:[] }
+],
+'B2-DM-2023-06': [
+  { id:'listening', label:'Rozumienie ze słuchu', minutes:40, points:30,
+    tasks:[
+      {id:'l1', title:'Zadanie I — temat nagrania (wybór A/B/C)', type:'mc', n:7},
+      {id:'l2', title:'Zadanie II — TAK / NIE (Trashmageddon)', type:'mc', opts:['TAK','NIE'], n:7},
+      {id:'l3', title:'Zadanie III — wybór a/b/c (projektant mody)', type:'mc', n:5},
+      {id:'l4', title:'Zadanie IV — dopasowanie zamków (1–4 → a–f)', type:'match', letters:['a','b','c','d','e','f'], options:[1,2,3,4]},
+      {id:'l5', title:'Zadanie V — odpowiedzi otwarte (GOPR)', type:'open', n:5}
+    ]},
+  { id:'reading', label:'Rozumienie tekstów pisanych', minutes:60, points:30,
+    tasks:[
+      {id:'r1', title:'Zadanie I — dopasowanie tytułów (2 zbędne)', type:'match', letters:[1,2,3,4,5,6,7], options:['A','B','C','D','E','F','G','H','I','J']},
+      {id:'r2', title:'Zadanie II — brakujące zdania (2 zbędne)', type:'match', letters:[1,2,3,4,5], options:['A','B','C','D','E','F','G','H']},
+      {id:'r3', title:'Zadanie III — TAK / NIE (Młodzieżowe Słowo Roku)', type:'mc', opts:['TAK','NIE'], n:6},
+      {id:'r4', title:'Zadanie IV — wybór a/b/c (fragment prozy)', type:'mc', n:6},
+      {id:'r5', title:'Zadanie V — którego spektaklu dotyczy (możliwe kilka)', type:'open', n:6}
+    ]},
+  { id:'grammar', label:'Poprawność gramatyczna', minutes:60, points:40,
+    tasks:[
+      {id:'g1', title:'Zadanie I — imiesłowy', type:'open', n:8},
+      {id:'g2', title:'Zadanie II — przyimki z ramki (1 zbędny)', type:'open', n:8},
+      {id:'g3', title:'Zadanie III — odmiana i liczebniki', type:'open', n:14},
+      {id:'g4', title:'Zadanie IV — wskaźniki zespolenia', type:'open', n:8},
+      {id:'g5', title:'Zadanie V — aspekt, czas przeszły/przyszły', type:'open', n:7},
+      {id:'g6', title:'Zadanie VI — słowotwórstwo', type:'open', n:5},
+      {id:'g7', title:'Zadanie VII — stopniowanie', type:'open', n:8},
+      {id:'g8', title:'Zadanie VIII — transformacje zdań', type:'freeform', n:5}
+    ]},
+  { id:'writing', label:'Pisanie', minutes:90, points:40, tasks:[] }
+],
+'B1-2023-11': [
+  { id:'listening', label:'Rozumienie ze słuchu', minutes:30, points:30,
+    tasks:[
+      {id:'l1', title:'Zadanie I — wybór a/b/c', type:'mc', n:14},
+      {id:'l2', title:'Zadanie II — wybór a/b/c (dialogi)', type:'mc', n:8},
+      {id:'l3', title:'Zadanie III — wybór a/b/c', type:'mc', n:5},
+      {id:'l4', title:'Zadanie IV — TAK / NIE', type:'mc', opts:['TAK','NIE'], n:5},
+      {id:'l5', title:'Zadanie V — dopasowanie opinii (A–D, możliwe kilka)', type:'open', n:4}
+    ]},
+  { id:'reading', label:'Rozumienie tekstów pisanych', minutes:40, points:30,
+    tasks:[
+      {id:'r1', title:'Zadanie I — wybór a/b/c', type:'mc', n:5},
+      {id:'r2', title:'Zadanie II — TAK / NIE', type:'mc', opts:['TAK','NIE'], n:6},
+      {id:'r3', title:'Zadanie III — brakujące fragmenty', type:'match', letters:[1,2,3,4,5,6,7], options:['A','B','C','D','E','F','G','H']},
+      {id:'r4', title:'Zadanie IV — dopasowanie tytułów', type:'match', letters:[1,2,3,4,5,6,7], options:['A','B','C','D','E','F','G','H']},
+      {id:'r5', title:'Zadanie V — wybór słowa', type:'open', n:10}
+    ]},
+  { id:'grammar', label:'Poprawność gramatyczna', minutes:45, points:30,
+    tasks:[
+      {id:'g1', title:'Zadanie I — odmiana rzeczowników/przymiotników/zaimków', type:'open', n:10},
+      {id:'g2', title:'Zadanie II — spójniki z ramki (1 zbędny)', type:'open', n:5},
+      {id:'g3', title:'Zadanie III — stopniowanie', type:'open', n:5},
+      {id:'g4', title:'Zadanie IV — czas teraźniejszy i przeszły', type:'open', n:10},
+      {id:'g5', title:'Zadanie V — pytania o podkreśloną część zdania', type:'freeform', n:5},
+      {id:'g6', title:'Zadanie VI — przekształcenia zdań', type:'freeform', n:5},
+      {id:'g7', title:'Zadanie VII — aspekt i tryby', type:'open', n:10},
+      {id:'g8', title:'Zadanie VIII — przyimki z ramki (1 zbędny)', type:'open', n:5}
+    ]},
+  { id:'writing', label:'Pisanie', minutes:75, points:30, tasks:[] }
+],
+'B1-2022-02': [
+  { id:'listening', label:'Rozumienie ze słuchu', minutes:30, points:30,
+    tasks:[
+      {id:'l1', title:'Zadanie I — wybór a/b/c', type:'mc', n:14},
+      {id:'l2', title:'Zadanie II — wybór a/b/c (dialogi)', type:'mc', n:8},
+      {id:'l3', title:'Zadanie III — wybór a/b/c (najlepszy pracodawca)', type:'mc', n:5},
+      {id:'l4', title:'Zadanie IV — TAK / NIE (królowa Elżbieta II)', type:'mc', opts:['TAK','NIE'], n:5},
+      {id:'l5', title:'Zadanie V — dopasowanie kolumn (parki narodowe)', type:'match', letters:[1,2,3,4,5], options:['A','B','C','D','E','F']}
+    ]},
+  { id:'reading', label:'Rozumienie tekstów pisanych', minutes:40, points:30,
+    tasks:[
+      {id:'r1', title:'Zadanie I — wybór a/b/c', type:'mc', n:5},
+      {id:'r2', title:'Zadanie II — TAK / NIE', type:'mc', opts:['TAK','NIE'], n:6},
+      {id:'r3', title:'Zadanie III — brakujące fragmenty', type:'match', letters:[1,2,3,4,5,6,7], options:['A','B','C','D','E','F','G','H']},
+      {id:'r4', title:'Zadanie IV — dopasowanie tytułów', type:'match', letters:[1,2,3,4,5,6,7], options:['A','B','C','D','E','F','G','H']},
+      {id:'r5', title:'Zadanie V — uzupełnianie słowami z ramki', type:'open', n:10}
+    ]},
+  { id:'grammar', label:'Poprawność gramatyczna', minutes:45, points:30,
+    tasks:[
+      {id:'g1', title:'Zadanie I — odmiana rzeczowników/przymiotników/zaimków', type:'open', n:10},
+      {id:'g2', title:'Zadanie II — spójniki z ramki (1 zbędny)', type:'open', n:5},
+      {id:'g3', title:'Zadanie III — stopniowanie', type:'open', n:5},
+      {id:'g4', title:'Zadanie IV — czas teraźniejszy i przeszły', type:'open', n:10},
+      {id:'g5', title:'Zadanie V — pytania o podkreśloną część zdania', type:'freeform', n:5},
+      {id:'g6', title:'Zadanie VI — przekształcenia zdań', type:'freeform', n:5},
+      {id:'g7', title:'Zadanie VII — aspekt i tryby', type:'open', n:10},
+      {id:'g8', title:'Zadanie VIII — przyimki z ramki (1 zbędny)', type:'open', n:5}
+    ]},
+  { id:'writing', label:'Pisanie', minutes:75, points:30, tasks:[] }
+],
+'B2-2022-02': [
+  { id:'listening', label:'Rozumienie ze słuchu', minutes:40, points:40,
+    tasks:[
+      {id:'l1', title:'Zadanie I — wybór a/b/c (3 nagrania, po 2 pytania)', type:'mc', n:6},
+      {id:'l2', title:'Zadanie II — wybór a/b/c', type:'mc', n:7},
+      {id:'l3', title:'Zadanie III — TAK / NIE', type:'mc', opts:['TAK','NIE'], n:9},
+      {id:'l4', title:'Zadanie IV — którego zwierzęcia dotyczy opis (możliwe kilka)', type:'open', n:6},
+      {id:'l5', title:'Zadanie V — odpowiedzi otwarte', type:'open', n:8}
+    ]},
+  { id:'reading', label:'Rozumienie tekstów pisanych', minutes:60, points:40,
+    tasks:[
+      {id:'r1', title:'Zadanie I — wybór a/b/c', type:'mc', n:5},
+      {id:'r2', title:'Zadanie II — brakujące fragmenty', type:'match', letters:[1,2,3,4,5,6,7,8,9,10], options:['A','B','C','D','E','F','G','H','I','J','K']},
+      {id:'r3', title:'Zadanie III — dopasowanie kolumn', type:'match', letters:[1,2,3,4,5,6,7,8,9,10], options:['A','B','C','D','E','F','G','H','I','J','K']},
+      {id:'r4', title:'Zadanie IV — TAK / NIE / BI', type:'mc', opts:['TAK','NIE','BI'], n:10},
+      {id:'r5', title:'Zadanie V — uzupełnianie słowami z ramki', type:'open', n:10}
+    ]},
+  { id:'grammar', label:'Poprawność gramatyczna', minutes:60, points:40,
+    tasks:[
+      {id:'g1', title:'Zadanie I — imiesłowy', type:'open', n:10},
+      {id:'g2', title:'Zadanie II — spójniki z ramki', type:'open', n:10},
+      {id:'g3', title:'Zadanie III — odmiana liczebników i rzeczowników', type:'open', n:10},
+      {id:'g4', title:'Zadanie IV — formy nieosobowe i strona bierna', type:'open', n:10},
+      {id:'g5', title:'Zadanie V — odmiana rzeczowników/przymiotników/zaimków', type:'open', n:10},
+      {id:'g6', title:'Zadanie VI — aspekt, czas przeszły i przyszły', type:'open', n:10},
+      {id:'g7', title:'Zadanie VII — stopniowanie', type:'open', n:10},
+      {id:'g8', title:'Zadanie VIII — przekształcenia zdań', type:'freeform', n:5}
+    ]},
+  { id:'writing', label:'Pisanie', minutes:90, points:40, tasks:[] }
+],
+'B1-2022-03': [
+  { id:'listening', label:'Rozumienie ze słuchu', minutes:30, points:30,
+    tasks:[
+      {id:'l1', title:'Zadanie I — wybór a/b/c', type:'mc', n:14},
+      {id:'l2', title:'Zadanie II — wybór a/b/c (dialogi)', type:'mc', n:8},
+      {id:'l3', title:'Zadanie III — wybór a/b/c', type:'mc', n:5},
+      {id:'l4', title:'Zadanie IV — TAK / NIE', type:'mc', opts:['TAK','NIE'], n:5},
+      {id:'l5', title:'Zadanie V — dopasowanie kolumn', type:'match', letters:[1,2,3,4,5], options:['A','B','C','D','E','F']}
+    ]},
+  { id:'reading', label:'Rozumienie tekstów pisanych', minutes:40, points:30,
+    tasks:[
+      {id:'r1', title:'Zadanie I — wybór a/b/c', type:'mc', n:5},
+      {id:'r2', title:'Zadanie II — TAK / NIE', type:'mc', opts:['TAK','NIE'], n:6},
+      {id:'r3', title:'Zadanie III — brakujące fragmenty', type:'match', letters:[1,2,3,4,5,6,7], options:['A','B','C','D','E','F','G','H']},
+      {id:'r4', title:'Zadanie IV — dopasowanie tytułów', type:'match', letters:[1,2,3,4,5,6,7], options:['A','B','C','D','E','F','G','H']},
+      {id:'r5', title:'Zadanie V — uzupełnianie słowami z ramki', type:'open', n:10}
+    ]},
+  { id:'grammar', label:'Poprawność gramatyczna', minutes:45, points:30,
+    tasks:[
+      {id:'g1', title:'Zadanie I — odmiana rzeczowników/przymiotników/zaimków', type:'open', n:10},
+      {id:'g2', title:'Zadanie II — spójniki z ramki (1 zbędny)', type:'open', n:5},
+      {id:'g3', title:'Zadanie III — stopniowanie', type:'open', n:5},
+      {id:'g4', title:'Zadanie IV — czas teraźniejszy i przeszły', type:'open', n:10},
+      {id:'g5', title:'Zadanie V — pytania o podkreśloną część zdania', type:'freeform', n:5},
+      {id:'g6', title:'Zadanie VI — przekształcenia zdań', type:'freeform', n:5},
+      {id:'g7', title:'Zadanie VII — aspekt i tryby', type:'open', n:10},
+      {id:'g8', title:'Zadanie VIII — przyimki z ramki (1 zbędny)', type:'open', n:5}
+    ]},
+  { id:'writing', label:'Pisanie', minutes:75, points:30, tasks:[] }
+],
+'B1-DM-2022-03': [
+  { id:'listening', label:'Rozumienie ze słuchu', minutes:30, points:30,
+    tasks:[
+      {id:'l1', title:'Zadanie I — wybór symbolu A/B/C', type:'mc', n:8},
+      {id:'l2', title:'Zadanie II — wybór a/b/c (festiwal jazzowy)', type:'mc', n:4},
+      {id:'l3', title:'Zadanie III — TAK / NIE (turniej karate)', type:'mc', opts:['TAK','NIE'], n:6},
+      {id:'l4', title:'Zadanie IV — hobby wg osób (2–3 litery na osobę)', type:'open', n:8},
+      {id:'l5', title:'Zadanie V — wybór a/b/c (wiadomość głosowa)', type:'mc', n:8}
+    ]},
+  { id:'reading', label:'Rozumienie tekstów pisanych z gramatyką', minutes:60, points:40,
+    tasks:[
+      {id:'r1', title:'Zadanie I — forma wyrazu + wybór a/b/c (6 tekstów)', type:'mc', n:6},
+      {id:'r2', title:'Zadanie II — wybór zakończenia zdania (zwierzę domowe)', type:'mc', n:5},
+      {id:'r3', title:'Zadanie III — wybór właściwej reakcji (dialogi)', type:'mc', n:6},
+      {id:'r4', title:'Zadanie IV — TAK / NIE (malarka Wanessa)', type:'mc', opts:['TAK','NIE'], n:7},
+      {id:'r5', title:'Zadanie V — brakujące fragmenty (wywiad z Igą Świątek)', type:'match', letters:[1,2,3,4,5,6,7,8], options:['A','B','C','D','E','F','G','H','I']},
+      {id:'r6', title:'Zadanie VI — wybór słowa (ocieplenie klimatu)', type:'open', n:8},
+      {id:'r7', title:'Zadanie VII — wybór słowa (opowiadanie o nastolatku)', type:'open', n:8}
+    ]},
+  { id:'writing', label:'Pisanie', minutes:60, points:30, tasks:[] }
+],
+'B1-2022-06': [
+  { id:'listening', label:'Rozumienie ze słuchu', minutes:30, points:30,
+    tasks:[
+      {id:'l1', title:'Zadanie I — wybór a/b/c', type:'mc', n:14},
+      {id:'l2', title:'Zadanie II — wybór a/b/c (dialogi)', type:'mc', n:8},
+      {id:'l3', title:'Zadanie III — wybór a/b/c', type:'mc', n:5},
+      {id:'l4', title:'Zadanie IV — TAK / NIE', type:'mc', opts:['TAK','NIE'], n:5},
+      {id:'l5', title:'Zadanie V — dopasowanie kolumn', type:'match', letters:[1,2,3,4,5], options:['A','B','C','D','E','F']}
+    ]},
+  { id:'reading', label:'Rozumienie tekstów pisanych', minutes:40, points:30,
+    tasks:[
+      {id:'r1', title:'Zadanie I — wybór a/b/c', type:'mc', n:5},
+      {id:'r2', title:'Zadanie II — TAK / NIE', type:'mc', opts:['TAK','NIE'], n:6},
+      {id:'r3', title:'Zadanie III — brakujące fragmenty', type:'match', letters:[1,2,3,4,5,6,7], options:['A','B','C','D','E','F','G','H']},
+      {id:'r4', title:'Zadanie IV — dopasowanie tytułów', type:'match', letters:[1,2,3,4,5,6,7], options:['A','B','C','D','E','F','G','H']},
+      {id:'r5', title:'Zadanie V — uzupełnianie słowami z ramki', type:'open', n:10}
+    ]},
+  { id:'grammar', label:'Poprawność gramatyczna', minutes:45, points:30,
+    tasks:[
+      {id:'g1', title:'Zadanie I — odmiana rzeczowników/przymiotników/zaimków', type:'open', n:10},
+      {id:'g2', title:'Zadanie II — spójniki z ramki (1 zbędny)', type:'open', n:5},
+      {id:'g3', title:'Zadanie III — stopniowanie', type:'open', n:5},
+      {id:'g4', title:'Zadanie IV — czas teraźniejszy i przeszły', type:'open', n:10},
+      {id:'g5', title:'Zadanie V — pytania o podkreśloną część zdania', type:'freeform', n:5},
+      {id:'g6', title:'Zadanie VI — przekształcenia zdań', type:'freeform', n:5},
+      {id:'g7', title:'Zadanie VII — aspekt i tryby', type:'open', n:10},
+      {id:'g8', title:'Zadanie VIII — przyimki z ramki (1 zbędny)', type:'open', n:5}
+    ]},
+  { id:'writing', label:'Pisanie', minutes:75, points:30, tasks:[] }
+]
+,
+'B1-DM-2022-06': [
+  { id:'listening', label:'Rozumienie ze słuchu', minutes:30, points:30,
+    tasks:[
+      {id:'l1', title:'Zadanie I — wybór symbolu A/B/C', type:'mc', n:8},
+      {id:'l2', title:'Zadanie II — wybór a/b/c', type:'mc', n:4},
+      {id:'l3', title:'Zadanie III — TAK / NIE', type:'mc', opts:['TAK','NIE'], n:6},
+      {id:'l4', title:'Zadanie IV — wg osób (2–3 litery na osobę)', type:'open', n:8},
+      {id:'l5', title:'Zadanie V — wybór a/b/c (wiadomość głosowa)', type:'mc', n:8}
+    ]},
+  { id:'reading', label:'Rozumienie tekstów pisanych z gramatyką', minutes:60, points:40,
+    tasks:[
+      {id:'r1', title:'Zadanie I — forma wyrazu + wybór a/b/c (6 tekstów)', type:'mc', n:6},
+      {id:'r2', title:'Zadanie II — wybór zakończenia zdania', type:'mc', n:5},
+      {id:'r3', title:'Zadanie III — wybór właściwej reakcji (dialogi)', type:'mc', n:6},
+      {id:'r4', title:'Zadanie IV — TAK / NIE', type:'mc', opts:['TAK','NIE'], n:7},
+      {id:'r5', title:'Zadanie V — brakujące fragmenty', type:'match', letters:[1,2,3,4,5,6,7,8], options:['A','B','C','D','E','F','G','H','I']},
+      {id:'r6', title:'Zadanie VI — wybór słowa', type:'open', n:8},
+      {id:'r7', title:'Zadanie VII — wybór słowa', type:'open', n:8}
+    ]},
+  { id:'writing', label:'Pisanie', minutes:60, points:30, tasks:[] }
+],
+'B2-2022-06': [
+  { id:'listening', label:'Rozumienie ze słuchu', minutes:40, points:40,
+    tasks:[
+      {id:'l1', title:'Zadanie I — wybór a/b/c (3 nagrania, po 2 pytania)', type:'mc', n:6},
+      {id:'l2', title:'Zadanie II — wybór a/b/c', type:'mc', n:7},
+      {id:'l3', title:'Zadanie III — TAK / NIE', type:'mc', opts:['TAK','NIE'], n:9},
+      {id:'l4', title:'Zadanie IV — którego zwierzęcia/osoby dotyczy opis (możliwe kilka)', type:'open', n:6},
+      {id:'l5', title:'Zadanie V — odpowiedzi otwarte', type:'open', n:8}
+    ]},
+  { id:'reading', label:'Rozumienie tekstów pisanych', minutes:60, points:40,
+    tasks:[
+      {id:'r1', title:'Zadanie I — wybór a/b/c', type:'mc', n:5},
+      {id:'r2', title:'Zadanie II — brakujące fragmenty', type:'match', letters:[1,2,3,4,5,6,7,8,9,10], options:['A','B','C','D','E','F','G','H','I','J','K']},
+      {id:'r3', title:'Zadanie III — dopasowanie kolumn', type:'match', letters:[1,2,3,4,5,6,7,8,9,10], options:['A','B','C','D','E','F','G','H','I','J','K']},
+      {id:'r4', title:'Zadanie IV — TAK / NIE / BI', type:'mc', opts:['TAK','NIE','BI'], n:10},
+      {id:'r5', title:'Zadanie V — uzupełnianie słowami z ramki', type:'open', n:10}
+    ]},
+  { id:'grammar', label:'Poprawność gramatyczna', minutes:60, points:40,
+    tasks:[
+      {id:'g1', title:'Zadanie I — imiesłowy', type:'open', n:10},
+      {id:'g2', title:'Zadanie II — spójniki z ramki', type:'open', n:10},
+      {id:'g3', title:'Zadanie III — odmiana liczebników i rzeczowników', type:'open', n:10},
+      {id:'g4', title:'Zadanie IV — formy nieosobowe i strona bierna', type:'open', n:10},
+      {id:'g5', title:'Zadanie V — odmiana rzeczowników/przymiotników/zaimków', type:'open', n:10},
+      {id:'g6', title:'Zadanie VI — aspekt, czas przeszły i przyszły', type:'open', n:10},
+      {id:'g7', title:'Zadanie VII — stopniowanie', type:'open', n:10},
+      {id:'g8', title:'Zadanie VIII — przekształcenia zdań', type:'freeform', n:5}
+    ]},
+  { id:'writing', label:'Pisanie', minutes:90, points:40, tasks:[] }
+],
+'B2-DM-2022-06': [
+  { id:'listening', label:'Rozumienie ze słuchu', minutes:40, points:30,
+    tasks:[
+      {id:'l1', title:'Zadanie I — temat nagrania (wybór A/B/C)', type:'mc', n:7},
+      {id:'l2', title:'Zadanie II — TAK / NIE', type:'mc', opts:['TAK','NIE'], n:6},
+      {id:'l3', title:'Zadanie III — wybór a/b/c', type:'mc', n:5},
+      {id:'l4', title:'Zadanie IV — dopasowanie osób (a–g → 1–4)', type:'open', n:7},
+      {id:'l5', title:'Zadanie V — odpowiedzi otwarte', type:'open', n:5}
+    ]},
+  { id:'reading', label:'Rozumienie tekstów pisanych', minutes:60, points:30,
+    tasks:[
+      {id:'r1', title:'Zadanie I — dopasowanie tytułów (2 zbędne)', type:'match', letters:[1,2,3,4,5,6,7], options:['A','B','C','D','E','F','G','H','I','J']},
+      {id:'r2', title:'Zadanie II — brakujące zdania (2 zbędne)', type:'match', letters:[1,2,3,4,5], options:['A','B','C','D','E','F','G','H']},
+      {id:'r3', title:'Zadanie III — TAK / NIE', type:'mc', opts:['TAK','NIE'], n:6},
+      {id:'r4', title:'Zadanie IV — wybór a/b/c (fragment prozy)', type:'mc', n:6},
+      {id:'r5', title:'Zadanie V — której książki dotyczy (możliwe kilka)', type:'open', n:6}
+    ]},
+  { id:'grammar', label:'Poprawność gramatyczna', minutes:60, points:40,
+    tasks:[
+      {id:'g1', title:'Zadanie I — imiesłowy', type:'open', n:8},
+      {id:'g2', title:'Zadanie II — przyimki z ramki (1 zbędny)', type:'open', n:8},
+      {id:'g3', title:'Zadanie III — odmiana i liczebniki', type:'open', n:14},
+      {id:'g4', title:'Zadanie IV — spójniki', type:'open', n:8},
+      {id:'g5', title:'Zadanie V — aspekt, czas przeszły/przyszły', type:'open', n:7},
+      {id:'g6', title:'Zadanie VI — słowotwórstwo', type:'open', n:5},
+      {id:'g7', title:'Zadanie VII — stopniowanie', type:'open', n:8},
+      {id:'g8', title:'Zadanie VIII — transformacje zdań', type:'freeform', n:5}
+    ]},
+  { id:'writing', label:'Pisanie', minutes:90, points:40, tasks:[] }
+],
+'B1-2022-11': [
+  { id:'listening', label:'Rozumienie ze słuchu', minutes:30, points:30,
+    tasks:[
+      {id:'l1', title:'Zadanie I — wybór a/b/c', type:'mc', n:14},
+      {id:'l2', title:'Zadanie II — wybór a/b/c (dialogi)', type:'mc', n:8},
+      {id:'l3', title:'Zadanie III — wybór a/b/c', type:'mc', n:5},
+      {id:'l4', title:'Zadanie IV — TAK / NIE', type:'mc', opts:['TAK','NIE'], n:5},
+      {id:'l5', title:'Zadanie V — dopasowanie kolumn', type:'match', letters:[1,2,3,4,5], options:['A','B','C','D','E','F']}
+    ]},
+  { id:'reading', label:'Rozumienie tekstów pisanych', minutes:40, points:30,
+    tasks:[
+      {id:'r1', title:'Zadanie I — wybór a/b/c', type:'mc', n:5},
+      {id:'r2', title:'Zadanie II — TAK / NIE', type:'mc', opts:['TAK','NIE'], n:6},
+      {id:'r3', title:'Zadanie III — brakujące fragmenty', type:'match', letters:[1,2,3,4,5,6,7], options:['A','B','C','D','E','F','G','H']},
+      {id:'r4', title:'Zadanie IV — dopasowanie tytułów', type:'match', letters:[1,2,3,4,5,6,7], options:['A','B','C','D','E','F','G','H']},
+      {id:'r5', title:'Zadanie V — uzupełnianie słowami z ramki', type:'open', n:10}
+    ]},
+  { id:'grammar', label:'Poprawność gramatyczna', minutes:45, points:30,
+    tasks:[
+      {id:'g1', title:'Zadanie I — odmiana rzeczowników/przymiotników/zaimków', type:'open', n:10},
+      {id:'g2', title:'Zadanie II — spójniki z ramki (1 zbędny)', type:'open', n:5},
+      {id:'g3', title:'Zadanie III — stopniowanie', type:'open', n:5},
+      {id:'g4', title:'Zadanie IV — czas teraźniejszy i przeszły', type:'open', n:10},
+      {id:'g5', title:'Zadanie V — pytania o podkreśloną część zdania', type:'freeform', n:5},
+      {id:'g6', title:'Zadanie VI — przekształcenia zdań', type:'freeform', n:5},
+      {id:'g7', title:'Zadanie VII — aspekt i tryby', type:'open', n:10},
+      {id:'g8', title:'Zadanie VIII — przyimki z ramki (1 zbędny)', type:'open', n:5}
+    ]},
+  { id:'writing', label:'Pisanie', minutes:75, points:30, tasks:[] }
+],
+'B1-2021-01': [
+  { id:'listening', label:'Rozumienie ze słuchu', minutes:30, points:30,
+    tasks:[
+      {id:'l1', title:'Zadanie I — wybór a/b/c', type:'mc', n:14},
+      {id:'l2', title:'Zadanie II — dopasowanie kolumn (historia sportu)', type:'match', letters:[1,2,3,4,5], options:['A','B','C','D','E','F']},
+      {id:'l3', title:'Zadanie III — TAK / NIE', type:'mc', opts:['TAK','NIE'], n:8},
+      {id:'l4', title:'Zadanie IV — wybór a/b/c', type:'mc', n:5},
+      {id:'l5', title:'Zadanie V — dopasowanie tekstu do ilustracji', type:'open', n:10}
+    ]},
+  { id:'reading', label:'Rozumienie tekstów pisanych', minutes:40, points:30,
+    tasks:[
+      {id:'r1', title:'Zadanie I — wybór a/b/c', type:'mc', n:5},
+      {id:'r2', title:'Zadanie II — TAK / NIE', type:'mc', opts:['TAK','NIE'], n:6},
+      {id:'r3', title:'Zadanie III — brakujące fragmenty', type:'match', letters:[1,2,3,4,5,6,7,8], options:['A','B','C','D','E','F','G','H','I']},
+      {id:'r4', title:'Zadanie IV — dopasowanie tytułów', type:'match', letters:[1,2,3,4,5,6], options:['A','B','C','D','E','F','G']},
+      {id:'r5', title:'Zadanie V — uzupełnianie słowami z ramki', type:'open', n:10}
+    ]},
+  { id:'grammar', label:'Poprawność gramatyczna', minutes:45, points:30,
+    tasks:[
+      {id:'g1', title:'Zadanie I — odmiana rzeczowników/przymiotników/zaimków', type:'open', n:10},
+      {id:'g2', title:'Zadanie II — spójniki z ramki (1 zbędny)', type:'open', n:5},
+      {id:'g3', title:'Zadanie III — stopniowanie', type:'open', n:5},
+      {id:'g4', title:'Zadanie IV — czas teraźniejszy i przyszły', type:'open', n:10},
+      {id:'g5', title:'Zadanie V — pytania o podkreśloną część zdania', type:'freeform', n:5},
+      {id:'g6', title:'Zadanie VI — przekształcenia zdań', type:'freeform', n:5},
+      {id:'g7', title:'Zadanie VII — aspekt i tryby', type:'open', n:10},
+      {id:'g8', title:'Zadanie VIII — przyimki z ramki', type:'open', n:5}
+    ]},
+  { id:'writing', label:'Pisanie', minutes:75, points:30, tasks:[] }
+],
+'B1-2021-05': [
+  { id:'listening', label:'Rozumienie ze słuchu', minutes:30, points:30,
+    tasks:[
+      {id:'l1', title:'Zadanie I — wybór a/b/c', type:'mc', n:14},
+      {id:'l2', title:'Zadanie II — dopasowanie kolumn (historia sportu)', type:'match', letters:[1,2,3,4,5], options:['A','B','C','D','E','F']},
+      {id:'l3', title:'Zadanie III — TAK / NIE', type:'mc', opts:['TAK','NIE'], n:8},
+      {id:'l4', title:'Zadanie IV — wybór a/b/c', type:'mc', n:5},
+      {id:'l5', title:'Zadanie V — dopasowanie tekstu do ilustracji', type:'open', n:10}
+    ]},
+  { id:'reading', label:'Rozumienie tekstów pisanych', minutes:40, points:30,
+    tasks:[
+      {id:'r1', title:'Zadanie I — wybór a/b/c', type:'mc', n:5},
+      {id:'r2', title:'Zadanie II — TAK / NIE', type:'mc', opts:['TAK','NIE'], n:6},
+      {id:'r3', title:'Zadanie III — brakujące fragmenty', type:'match', letters:[1,2,3,4,5,6,7,8], options:['A','B','C','D','E','F','G','H','I']},
+      {id:'r4', title:'Zadanie IV — dopasowanie tytułów', type:'match', letters:[1,2,3,4,5,6], options:['A','B','C','D','E','F','G']},
+      {id:'r5', title:'Zadanie V — uzupełnianie słowami z ramki', type:'open', n:10}
+    ]},
+  { id:'grammar', label:'Poprawność gramatyczna', minutes:45, points:30,
+    tasks:[
+      {id:'g1', title:'Zadanie I — odmiana rzeczowników/przymiotników/zaimków', type:'open', n:10},
+      {id:'g2', title:'Zadanie II — spójniki z ramki (1 zbędny)', type:'open', n:5},
+      {id:'g3', title:'Zadanie III — stopniowanie', type:'open', n:5},
+      {id:'g4', title:'Zadanie IV — czas teraźniejszy i przyszły', type:'open', n:10},
+      {id:'g5', title:'Zadanie V — pytania o podkreśloną część zdania', type:'freeform', n:5},
+      {id:'g6', title:'Zadanie VI — przekształcenia zdań', type:'freeform', n:5},
+      {id:'g7', title:'Zadanie VII — aspekt i tryby', type:'open', n:10},
+      {id:'g8', title:'Zadanie VIII — przyimki z ramki', type:'open', n:5}
+    ]},
+  { id:'writing', label:'Pisanie', minutes:75, points:30, tasks:[] }
+],
+'B2-2021-05': [
+  { id:'listening', label:'Rozumienie ze słuchu', minutes:40, points:40,
+    tasks:[
+      {id:'l1', title:'Zadanie I — wybór a/b/c (4 nagrania, po 2 pytania)', type:'mc', n:8},
+      {id:'l2', title:'Zadanie II — TAK / NIE', type:'mc', opts:['TAK','NIE'], n:9},
+      {id:'l3', title:'Zadanie III — grupy krwi wg opisów (możliwe kilka)', type:'open', n:7},
+      {id:'l4', title:'Zadanie IV — wybór a/b/c (wywiad z R. Kapuścińskim)', type:'mc', n:6},
+      {id:'l5', title:'Zadanie V — odpowiedzi otwarte (Jasiek Mela)', type:'open', n:7}
+    ]},
+  { id:'reading', label:'Rozumienie tekstów pisanych', minutes:60, points:40,
+    tasks:[
+      {id:'r1', title:'Zadanie I — wybór a/b/c', type:'mc', n:5},
+      {id:'r2', title:'Zadanie II — brakujące fragmenty', type:'match', letters:[1,2,3,4,5,6,7,8,9,10], options:['A','B','C','D','E','F','G','H','I','J','K']},
+      {id:'r3', title:'Zadanie III — dopasowanie kolumn', type:'match', letters:[1,2,3,4,5,6,7,8,9,10], options:['A','B','C','D','E','F','G','H','I','J','K']},
+      {id:'r4', title:'Zadanie IV — TAK / NIE / BI', type:'mc', opts:['TAK','NIE','BI'], n:10},
+      {id:'r5', title:'Zadanie V — uzupełnianie słowami z ramki (2 zbędne)', type:'open', n:10}
+    ]},
+  { id:'grammar', label:'Poprawność gramatyczna', minutes:60, points:40,
+    tasks:[
+      {id:'g1', title:'Zadanie I — imiesłowy', type:'open', n:10},
+      {id:'g2', title:'Zadanie II — spójniki z ramki', type:'open', n:10},
+      {id:'g3', title:'Zadanie III — formy nieosobowe i strona bierna', type:'open', n:10},
+      {id:'g4', title:'Zadanie IV — odmiana liczebników i rzeczowników', type:'open', n:10},
+      {id:'g5', title:'Zadanie V — odmiana rzeczowników/przymiotników/zaimków', type:'open', n:10},
+      {id:'g6', title:'Zadanie VI — aspekt, czas przeszły i przyszły', type:'open', n:10},
+      {id:'g7', title:'Zadanie VII — stopniowanie', type:'open', n:10},
+      {id:'g8', title:'Zadanie VIII — przekształcenia zdań', type:'freeform', n:5}
+    ]},
+  { id:'writing', label:'Pisanie', minutes:90, points:40, tasks:[] }
+],
+'B2-DM-2021-05': [
+  { id:'listening', label:'Rozumienie ze słuchu', minutes:40, points:30,
+    tasks:[
+      {id:'l1', title:'Zadanie I — temat nagrania (wybór A/B/C)', type:'mc', n:7},
+      {id:'l2', title:'Zadanie II — TAK / NIE (plastik)', type:'mc', opts:['TAK','NIE'], n:6},
+      {id:'l3', title:'Zadanie III — wybór a/b/c (sędzia siatkarski)', type:'mc', n:5},
+      {id:'l4', title:'Zadanie IV — dopasowanie osób (1–4 → a–g)', type:'open', n:7},
+      {id:'l5', title:'Zadanie V — odpowiedzi otwarte (uprawa warzyw na balkonie)', type:'open', n:5}
+    ]},
+  { id:'reading', label:'Rozumienie tekstów pisanych', minutes:60, points:30,
+    tasks:[
+      {id:'r1', title:'Zadanie I — dopasowanie tytułów (2 zbędne)', type:'match', letters:[1,2,3,4,5,6,7], options:['A','B','C','D','E','F','G','H','I','J']},
+      {id:'r2', title:'Zadanie II — brakujące zdania (2 zbędne)', type:'match', letters:[1,2,3,4,5], options:['A','B','C','D','E','F','G','H']},
+      {id:'r3', title:'Zadanie III — TAK / NIE (programy kulinarne)', type:'mc', opts:['TAK','NIE'], n:6},
+      {id:'r4', title:'Zadanie IV — wybór a/b/c (fragment prozy A. Christie)', type:'mc', n:6},
+      {id:'r5', title:'Zadanie V — której książki dotyczy (możliwe kilka)', type:'open', n:6}
+    ]},
+  { id:'grammar', label:'Poprawność gramatyczna', minutes:60, points:40,
+    tasks:[
+      {id:'g1', title:'Zadanie I — imiesłowy', type:'open', n:8},
+      {id:'g2', title:'Zadanie II — przyimki z ramki (1 zbędny)', type:'open', n:8},
+      {id:'g3', title:'Zadanie III — odmiana i liczebniki', type:'open', n:14},
+      {id:'g4', title:'Zadanie IV — spójniki', type:'open', n:8},
+      {id:'g5', title:'Zadanie V — aspekt, czas przeszły/przyszły', type:'open', n:7},
+      {id:'g6', title:'Zadanie VI — słowotwórstwo', type:'open', n:5},
+      {id:'g7', title:'Zadanie VII — stopniowanie', type:'open', n:8},
+      {id:'g8', title:'Zadanie VIII — transformacje zdań', type:'freeform', n:5}
+    ]},
+  { id:'writing', label:'Pisanie', minutes:90, points:40, tasks:[] }
+],
+'B1-2021-06': [
+  { id:'listening', label:'Rozumienie ze słuchu', minutes:30, points:30,
+    tasks:[
+      {id:'l1', title:'Zadanie I — wybór a/b/c', type:'mc', n:14},
+      {id:'l2', title:'Zadanie II — dopasowanie kolumn', type:'match', letters:[1,2,3,4,5], options:['A','B','C','D','E','F']},
+      {id:'l3', title:'Zadanie III — TAK / NIE', type:'mc', opts:['TAK','NIE'], n:8},
+      {id:'l4', title:'Zadanie IV — wybór a/b/c', type:'mc', n:5},
+      {id:'l5', title:'Zadanie V — dopasowanie tekstu do ilustracji', type:'open', n:10}
+    ]},
+  { id:'reading', label:'Rozumienie tekstów pisanych', minutes:40, points:30,
+    tasks:[
+      {id:'r1', title:'Zadanie I — wybór a/b/c', type:'mc', n:5},
+      {id:'r2', title:'Zadanie II — TAK / NIE', type:'mc', opts:['TAK','NIE'], n:6},
+      {id:'r3', title:'Zadanie III — brakujące fragmenty', type:'match', letters:[1,2,3,4,5,6,7,8], options:['A','B','C','D','E','F','G','H','I']},
+      {id:'r4', title:'Zadanie IV — dopasowanie tytułów', type:'match', letters:[1,2,3,4,5,6], options:['A','B','C','D','E','F','G']},
+      {id:'r5', title:'Zadanie V — uzupełnianie słowami z ramki', type:'open', n:10}
+    ]},
+  { id:'grammar', label:'Poprawność gramatyczna', minutes:45, points:30,
+    tasks:[
+      {id:'g1', title:'Zadanie I — odmiana rzeczowników/przymiotników/zaimków', type:'open', n:10},
+      {id:'g2', title:'Zadanie II — spójniki z ramki (1 zbędny)', type:'open', n:5},
+      {id:'g3', title:'Zadanie III — stopniowanie', type:'open', n:5},
+      {id:'g4', title:'Zadanie IV — czas teraźniejszy i przyszły', type:'open', n:10},
+      {id:'g5', title:'Zadanie V — pytania o podkreśloną część zdania', type:'freeform', n:5},
+      {id:'g6', title:'Zadanie VI — przekształcenia zdań', type:'freeform', n:5},
+      {id:'g7', title:'Zadanie VII — aspekt i tryby', type:'open', n:10},
+      {id:'g8', title:'Zadanie VIII — przyimki z ramki', type:'open', n:5}
+    ]},
+  { id:'writing', label:'Pisanie', minutes:75, points:30, tasks:[] }
+],
+'B1-DM-2021-06': [
+  { id:'listening', label:'Rozumienie ze słuchu', minutes:30, points:30,
+    tasks:[
+      {id:'l1', title:'Zadanie I — wybór symbolu A/B/C', type:'mc', n:8},
+      {id:'l2', title:'Zadanie II — wybór a/b/c (sportowiec)', type:'mc', n:4},
+      {id:'l3', title:'Zadanie III — TAK / NIE (ogrody przy szkołach)', type:'mc', opts:['TAK','NIE'], n:6},
+      {id:'l4', title:'Zadanie IV — ubrania wg osób (2–3 litery na osobę)', type:'open', n:8},
+      {id:'l5', title:'Zadanie V — wybór a/b/c (wiadomość głosowa)', type:'mc', n:8}
+    ]},
+  { id:'reading', label:'Rozumienie tekstów pisanych z gramatyką', minutes:60, points:40,
+    tasks:[
+      {id:'r1', title:'Zadanie I — forma wyrazu + wybór a/b/c (6 tekstów)', type:'mc', n:6},
+      {id:'r2', title:'Zadanie II — wybór zakończenia zdania (pokój młodzieżowy)', type:'mc', n:5},
+      {id:'r3', title:'Zadanie III — wybór właściwej reakcji (dialogi)', type:'mc', n:6},
+      {id:'r4', title:'Zadanie IV — TAK / NIE (Dzień Otwarty GOPR)', type:'mc', opts:['TAK','NIE'], n:6},
+      {id:'r5', title:'Zadanie V — brakujące fragmenty (wywiad z Viki Gabor)', type:'match', letters:[1,2,3,4,5,6,7,8], options:['A','B','C','D','E','F','G','H','I']},
+      {id:'r6', title:'Zadanie VI — wybór słowa (radiowęzeł)', type:'open', n:9},
+      {id:'r7', title:'Zadanie VII — wybór słowa (Miś Uszatek)', type:'open', n:9}
+    ]},
+  { id:'writing', label:'Pisanie', minutes:60, points:30, tasks:[] }
+],
+'B2-2021-06': [
+  { id:'listening', label:'Rozumienie ze słuchu', minutes:40, points:40,
+    tasks:[
+      {id:'l1', title:'Zadanie I — wybór a/b/c (4 nagrania, po 2 pytania)', type:'mc', n:8},
+      {id:'l2', title:'Zadanie II — TAK / NIE', type:'mc', opts:['TAK','NIE'], n:9},
+      {id:'l3', title:'Zadanie III — kategorie wg opisów (możliwe kilka)', type:'open', n:7},
+      {id:'l4', title:'Zadanie IV — wybór a/b/c', type:'mc', n:6},
+      {id:'l5', title:'Zadanie V — odpowiedzi otwarte', type:'open', n:7}
+    ]},
+  { id:'reading', label:'Rozumienie tekstów pisanych', minutes:60, points:40,
+    tasks:[
+      {id:'r1', title:'Zadanie I — wybór a/b/c', type:'mc', n:5},
+      {id:'r2', title:'Zadanie II — brakujące fragmenty', type:'match', letters:[1,2,3,4,5,6,7,8,9,10], options:['A','B','C','D','E','F','G','H','I','J','K']},
+      {id:'r3', title:'Zadanie III — dopasowanie kolumn', type:'match', letters:[1,2,3,4,5,6,7,8,9,10], options:['A','B','C','D','E','F','G','H','I','J','K']},
+      {id:'r4', title:'Zadanie IV — TAK / NIE / BI', type:'mc', opts:['TAK','NIE','BI'], n:10},
+      {id:'r5', title:'Zadanie V — uzupełnianie słowami z ramki (2 zbędne)', type:'open', n:10}
+    ]},
+  { id:'grammar', label:'Poprawność gramatyczna', minutes:60, points:40,
+    tasks:[
+      {id:'g1', title:'Zadanie I — imiesłowy', type:'open', n:10},
+      {id:'g2', title:'Zadanie II — spójniki z ramki', type:'open', n:10},
+      {id:'g3', title:'Zadanie III — formy nieosobowe i strona bierna', type:'open', n:10},
+      {id:'g4', title:'Zadanie IV — odmiana liczebników i rzeczowników', type:'open', n:10},
+      {id:'g5', title:'Zadanie V — odmiana rzeczowników/przymiotników/zaimków', type:'open', n:10},
+      {id:'g6', title:'Zadanie VI — aspekt, czas przeszły i przyszły', type:'open', n:10},
+      {id:'g7', title:'Zadanie VII — stopniowanie', type:'open', n:10},
+      {id:'g8', title:'Zadanie VIII — przekształcenia zdań', type:'freeform', n:5}
+    ]},
+  { id:'writing', label:'Pisanie', minutes:90, points:40, tasks:[] }
+],
+'B2-DM-2021-06': [
+  { id:'listening', label:'Rozumienie ze słuchu', minutes:40, points:30,
+    tasks:[
+      {id:'l1', title:'Zadanie I — temat nagrania (wybór A/B/C)', type:'mc', n:7},
+      {id:'l2', title:'Zadanie II — TAK / NIE', type:'mc', opts:['TAK','NIE'], n:6},
+      {id:'l3', title:'Zadanie III — wybór a/b/c', type:'mc', n:5},
+      {id:'l4', title:'Zadanie IV — dopasowanie osób (1–4 → a–g)', type:'open', n:7},
+      {id:'l5', title:'Zadanie V — odpowiedzi otwarte', type:'open', n:5}
+    ]},
+  { id:'reading', label:'Rozumienie tekstów pisanych', minutes:60, points:30,
+    tasks:[
+      {id:'r1', title:'Zadanie I — dopasowanie tytułów (2 zbędne)', type:'match', letters:[1,2,3,4,5,6,7], options:['A','B','C','D','E','F','G','H','I','J']},
+      {id:'r2', title:'Zadanie II — brakujące zdania (2 zbędne)', type:'match', letters:[1,2,3,4,5], options:['A','B','C','D','E','F','G','H']},
+      {id:'r3', title:'Zadanie III — TAK / NIE', type:'mc', opts:['TAK','NIE'], n:6},
+      {id:'r4', title:'Zadanie IV — wybór a/b/c (fragment prozy)', type:'mc', n:6},
+      {id:'r5', title:'Zadanie V — której książki dotyczy (możliwe kilka)', type:'open', n:6}
+    ]},
+  { id:'grammar', label:'Poprawność gramatyczna', minutes:60, points:40,
+    tasks:[
+      {id:'g1', title:'Zadanie I — imiesłowy', type:'open', n:8},
+      {id:'g2', title:'Zadanie II — przyimki z ramki (1 zbędny)', type:'open', n:8},
+      {id:'g3', title:'Zadanie III — odmiana i liczebniki', type:'open', n:14},
+      {id:'g4', title:'Zadanie IV — spójniki', type:'open', n:8},
+      {id:'g5', title:'Zadanie V — aspekt, czas przeszły/przyszły', type:'open', n:7},
+      {id:'g6', title:'Zadanie VI — słowotwórstwo', type:'open', n:5},
+      {id:'g7', title:'Zadanie VII — stopniowanie', type:'open', n:8},
+      {id:'g8', title:'Zadanie VIII — transformacje zdań', type:'freeform', n:5}
+    ]},
+  { id:'writing', label:'Pisanie', minutes:90, points:40, tasks:[] }
+]
+,
+'B1-2021-11': [
+  { id:'listening', label:'Rozumienie ze słuchu', minutes:30, points:30,
+    tasks:[
+      {id:'l1', title:'Zadanie I — wybór a/b/c', type:'mc', n:14},
+      {id:'l2', title:'Zadanie II — dopasowanie kolumn', type:'match', letters:[1,2,3,4,5], options:['A','B','C','D','E','F']},
+      {id:'l3', title:'Zadanie III — TAK / NIE', type:'mc', opts:['TAK','NIE'], n:8},
+      {id:'l4', title:'Zadanie IV — wybór a/b/c', type:'mc', n:5},
+      {id:'l5', title:'Zadanie V — dopasowanie tekstu do ilustracji', type:'open', n:10}
+    ]},
+  { id:'reading', label:'Rozumienie tekstów pisanych', minutes:40, points:30,
+    tasks:[
+      {id:'r1', title:'Zadanie I — wybór a/b/c', type:'mc', n:5},
+      {id:'r2', title:'Zadanie II — TAK / NIE', type:'mc', opts:['TAK','NIE'], n:6},
+      {id:'r3', title:'Zadanie III — brakujące fragmenty', type:'match', letters:[1,2,3,4,5,6,7,8], options:['A','B','C','D','E','F','G','H','I']},
+      {id:'r4', title:'Zadanie IV — dopasowanie tytułów', type:'match', letters:[1,2,3,4,5,6], options:['A','B','C','D','E','F','G']},
+      {id:'r5', title:'Zadanie V — uzupełnianie słowami z ramki', type:'open', n:10}
+    ]},
+  { id:'grammar', label:'Poprawność gramatyczna', minutes:45, points:30,
+    tasks:[
+      {id:'g1', title:'Zadanie I — odmiana rzeczowników/przymiotników/zaimków', type:'open', n:10},
+      {id:'g2', title:'Zadanie II — spójniki z ramki (1 zbędny)', type:'open', n:5},
+      {id:'g3', title:'Zadanie III — stopniowanie', type:'open', n:5},
+      {id:'g4', title:'Zadanie IV — czas teraźniejszy i przyszły', type:'open', n:10},
+      {id:'g5', title:'Zadanie V — pytania o podkreśloną część zdania', type:'freeform', n:5},
+      {id:'g6', title:'Zadanie VI — przekształcenia zdań', type:'freeform', n:5},
+      {id:'g7', title:'Zadanie VII — aspekt i tryby', type:'open', n:10},
+      {id:'g8', title:'Zadanie VIII — przyimki z ramki', type:'open', n:5}
+    ]},
+  { id:'writing', label:'Pisanie', minutes:75, points:30, tasks:[] }
+],
+'B2-2021-11': [
+  { id:'listening', label:'Rozumienie ze słuchu', minutes:40, points:40,
+    tasks:[
+      {id:'l1', title:'Zadanie I — wybór a/b/c (4 nagrania, po 2 pytania)', type:'mc', n:8},
+      {id:'l2', title:'Zadanie II — TAK / NIE', type:'mc', opts:['TAK','NIE'], n:9},
+      {id:'l3', title:'Zadanie III — kategorie wg opisów (możliwe kilka)', type:'open', n:7},
+      {id:'l4', title:'Zadanie IV — wybór a/b/c', type:'mc', n:6},
+      {id:'l5', title:'Zadanie V — odpowiedzi otwarte', type:'open', n:7}
+    ]},
+  { id:'reading', label:'Rozumienie tekstów pisanych', minutes:60, points:40,
+    tasks:[
+      {id:'r1', title:'Zadanie I — wybór a/b/c', type:'mc', n:5},
+      {id:'r2', title:'Zadanie II — brakujące fragmenty', type:'match', letters:[1,2,3,4,5,6,7,8,9,10], options:['A','B','C','D','E','F','G','H','I','J','K']},
+      {id:'r3', title:'Zadanie III — dopasowanie kolumn', type:'match', letters:[1,2,3,4,5,6,7,8,9,10], options:['A','B','C','D','E','F','G','H','I','J','K']},
+      {id:'r4', title:'Zadanie IV — TAK / NIE / BI', type:'mc', opts:['TAK','NIE','BI'], n:10},
+      {id:'r5', title:'Zadanie V — uzupełnianie słowami z ramki (2 zbędne)', type:'open', n:10}
+    ]},
+  { id:'grammar', label:'Poprawność gramatyczna', minutes:60, points:40,
+    tasks:[
+      {id:'g1', title:'Zadanie I — imiesłowy', type:'open', n:10},
+      {id:'g2', title:'Zadanie II — spójniki z ramki', type:'open', n:10},
+      {id:'g3', title:'Zadanie III — formy nieosobowe i strona bierna', type:'open', n:10},
+      {id:'g4', title:'Zadanie IV — odmiana liczebników i rzeczowników', type:'open', n:10},
+      {id:'g5', title:'Zadanie V — odmiana rzeczowników/przymiotników/zaimków', type:'open', n:10},
+      {id:'g6', title:'Zadanie VI — aspekt, czas przeszły i przyszły', type:'open', n:10},
+      {id:'g7', title:'Zadanie VII — stopniowanie', type:'open', n:10},
+      {id:'g8', title:'Zadanie VIII — przekształcenia zdań', type:'freeform', n:5}
+    ]},
+  { id:'writing', label:'Pisanie', minutes:90, points:40, tasks:[] }
+]
+};
+
+const EXAM_META = {
+  '2020': { level:'C1', label:'C1 · marzec 2020', examUrl:'https://certyfikatpolski.pl/wp-content/uploads/2020/11/C1_przykladowy_test_marzec2020.pdf', keyUrl:'https://certyfikatpolski.pl/wp-content/uploads/2020/11/C1_przykladowy_transkrypcje-i-klucz_marzec-2020.pdf' },
+  '2019': { level:'C1', label:'C1 · wrzesień 2019', examUrl:'https://certyfikatpolski.pl/wp-content/uploads/2019/09/C1_test.pdf', keyUrl:'https://certyfikatpolski.pl/wp-content/uploads/2019/09/C1_klucz.pdf' },
+  '2017': { level:'C1', label:'C1 · marzec 2017', examUrl:'https://certyfikatpolski.pl/wp-content/uploads/2017/03/5_C1_test.pdf', keyUrl:'https://certyfikatpolski.pl/wp-content/uploads/2017/03/5_C1_tr-klucz.pdf' },
+  '2021-06': { level:'C1', label:'C1 · czerwiec 2021', examUrl:'https://certyfikatpolski.pl/o-egzaminie/testy-egzaminacyjne-z-poprzednich-lat/', keyUrl:'https://certyfikatpolski.pl/o-egzaminie/testy-egzaminacyjne-z-poprzednich-lat/' },
+  '2021-05': { level:'C1', label:'C1 · maj 2021', examUrl:'https://certyfikatpolski.pl/wp-content/uploads/2026/07/2021.05.8-9_C1_Arkusz_egzaminacyjny.pdf', keyUrl:'https://certyfikatpolski.pl/o-egzaminie/testy-egzaminacyjne-z-poprzednich-lat/' },
+  'B2-2020': { level:'B2', label:'B2 · marzec 2020', examUrl:'https://certyfikatpolski.pl/wp-content/uploads/2020/12/B2_przykladowy_test_03_2020.pdf', keyUrl:'https://certyfikatpolski.pl/wp-content/uploads/2020/12/B2_przykladowy_transkrypcje-i-klucz_03_2020.pdf' },
+  'B2-2019': { level:'B2', label:'B2 · wrzesień 2019', examUrl:'https://certyfikatpolski.pl/wp-content/uploads/2019/09/B2_test.pdf', keyUrl:'https://certyfikatpolski.pl/wp-content/uploads/2019/09/B2_klucz.pdf' },
+  'B2-2017': { level:'B2', label:'B2 · marzec 2017', examUrl:'https://certyfikatpolski.pl/wp-content/uploads/2017/03/5_B2_test.pdf', keyUrl:'https://certyfikatpolski.pl/wp-content/uploads/2017/03/5_B2_tr-klucz.pdf' },
+  '2022-03': { level:'C1', label:'C1 · marzec 2022', examUrl:'https://certyfikatpolski.pl/wp-content/uploads/2026/01/2022.03.26-27_C1_Arkusz_egzaminacyjny.pdf', keyUrl:'https://certyfikatpolski.pl/wp-content/uploads/2026/01/2022.03.26-27_C1_Transkrypcja_nagran.pdf' },
+  '2023-04': { level:'C1', label:'C1 · kwiecień 2023', examUrl:'https://certyfikatpolski.pl/wp-content/uploads/2025/07/2023_04_15_16_C1_arkusz_egzaminacyjny.pdf', keyUrl:'https://certyfikatpolski.pl/wp-content/uploads/2025/07/2023_04_15_16_C1_transkrypcja.pdf' },
+  '2023-11': { level:'C1', label:'C1 · listopad 2023', examUrl:'https://certyfikatpolski.pl/wp-content/uploads/2025/07/2023_11_18_19_C1_arkusz_egzaminacyjny.pdf', keyUrl:'https://certyfikatpolski.pl/wp-content/uploads/2025/07/2023_11_18_19_C1_transkrypcja.pdf' },
+  '2024-04': { level:'C1', label:'C1 · kwiecień 2024', examUrl:'https://certyfikatpolski.pl/wp-content/uploads/2025/02/20-21.04.2024-C1_arkusz_egzaminacyjny.pdf', keyUrl:'https://certyfikatpolski.pl/wp-content/uploads/2025/02/20-21.04.2024-C1_transkrypcja.pdf' },
+  'B1-2020': { level:'B1', label:'B1 · marzec 2020', examUrl:'https://certyfikatpolski.pl/wp-content/uploads/2020/12/B1_przykladowy_test_2020_03.pdf', keyUrl:'https://certyfikatpolski.pl/wp-content/uploads/2020/12/B1_przykladowy_transkrypcje_i_klucz_2020_03.pdf' },
+  'B1-2019': { level:'B1', label:'B1 · wrzesień 2019', examUrl:'https://certyfikatpolski.pl/wp-content/uploads/2019/09/B1_test.pdf', keyUrl:'https://certyfikatpolski.pl/wp-content/uploads/2019/09/B1_klucz.pdf' },
+  'B1-2017': { level:'B1', label:'B1 · maj 2017', examUrl:'https://certyfikatpolski.pl/wp-content/uploads/2017/05/5_B1_test.pdf', keyUrl:'https://certyfikatpolski.pl/wp-content/uploads/2017/03/5_B1_tr-klucz.pdf' },
+  'B1-DM-2017': { level:'B1', label:'B1 dla dzieci i młodzieży · 2017', examUrl:'https://certyfikatpolski.pl/wp-content/uploads/2017/03/B1_DM_test-przykladowy.pdf', keyUrl:'https://certyfikatpolski.pl/wp-content/uploads/2017/03/B1_DM_TRANS-KLUCZ_test-przykladowy.pdf' },
+  'B1-DM-2019': { level:'B1', label:'B1 dla dzieci i młodzieży · 2019', examUrl:'https://certyfikatpolski.pl/wp-content/uploads/2019/11/B1_test2_test.pdf', keyUrl:'https://certyfikatpolski.pl/wp-content/uploads/2019/11/B1_test2_klucz.pdf' },
+  'B2-DM-2018': { level:'B2', label:'B2 dla dzieci i młodzieży · 2018', examUrl:'https://certyfikatpolski.pl/wp-content/uploads/2018/04/B2_DiM-test-przyk%C5%82adowy_-scalony-27.04-do-publikacji1.pdf', keyUrl:'https://certyfikatpolski.pl/wp-content/uploads/2018/04/B2_DiM_TRANS_KLUCZ-test-przyk%C5%82adowy-do-publikacji1.pdf' },
+  'A2': { level:'A2', label:'A2', examUrl:'https://certyfikatpolski.pl/wp-content/uploads/2018/10/t_a2.pdf', keyUrl:'https://certyfikatpolski.pl/wp-content/uploads/2018/10/tr_klucz_a2.pdf' },
+  'B2-2024-02': { level:'B2', label:'B2 · luty 2024', examUrl:'https://certyfikatpolski.pl/wp-content/uploads/2025/02/4-5.02.2024-B2_arkusz_egzaminacyjny.pdf', keyUrl:'https://certyfikatpolski.pl/wp-content/uploads/2025/02/4-5.02.2024-B2_transkrypcja.pdf' },
+  'B1-2024-02': { level:'B1', label:'B1 · luty 2024', examUrl:'https://certyfikatpolski.pl/wp-content/uploads/2025/02/4-5.02.2024-B1_arkusz_egzaminacyjny.pdf', keyUrl:'https://certyfikatpolski.pl/wp-content/uploads/2025/02/4-5.02.2024-B1_transkrypcja.pdf' },
+  'B1-2024-04': { level:'B1', label:'B1 · kwiecień 2024', examUrl:'https://certyfikatpolski.pl/wp-content/uploads/2025/02/20-21.04.2024-B1_arkusz_egzaminacyjny.pdf', keyUrl:'https://certyfikatpolski.pl/wp-content/uploads/2025/02/20-21.04.2024-B1_transkrypcja.pdf' },
+  'B1-2024-06': { level:'B1', label:'B1 · czerwiec 2024', examUrl:'https://certyfikatpolski.pl/wp-content/uploads/2025/02/22-23.06.2024-B1_arkusz_egzaminacyjny.pdf', keyUrl:'https://certyfikatpolski.pl/wp-content/uploads/2025/02/22-23.06.2024-B1_transkrypcja.pdf' },
+  'B1-DM-2024-06': { level:'B1', label:'B1 dla dzieci i młodzieży · czerwiec 2024', examUrl:'https://certyfikatpolski.pl/wp-content/uploads/2025/02/22-23.06.2024-B1-DIM_arkusz_egzaminacyjny.pdf', keyUrl:'https://certyfikatpolski.pl/wp-content/uploads/2025/02/22-23.06.2024-B1-DIM_transkrypcja.pdf' },
+  'B2-2024-06': { level:'B2', label:'B2 · czerwiec 2024', examUrl:'https://certyfikatpolski.pl/wp-content/uploads/2025/02/22-23.06.2024-B2_arkusz_egzaminacyjny.pdf', keyUrl:'https://certyfikatpolski.pl/wp-content/uploads/2025/02/22-23.06.2024-B2_transkrypcja.pdf' },
+  'B2-DM-2024-06': { level:'B2', label:'B2 dla dzieci i młodzieży · czerwiec 2024', examUrl:'https://certyfikatpolski.pl/wp-content/uploads/2025/02/22-23.06.2024-B2-DIM_arkusz_egzaminacyjny.pdf', keyUrl:'https://certyfikatpolski.pl/wp-content/uploads/2025/02/22-23.06.2024-B2-DIM_transkrypcja.pdf' },
+  'B1-2023-02': { level:'B1', label:'B1 · luty 2023', examUrl:'https://certyfikatpolski.pl/wp-content/uploads/2025/07/2023_02_5_6_B1_arkusz_egzaminacyjny.pdf', keyUrl:'https://certyfikatpolski.pl/wp-content/uploads/2025/07/2023_02_5_6_B1_transkrypcja.pdf' },
+  'B2-2023-02': { level:'B2', label:'B2 · luty 2023', examUrl:'https://certyfikatpolski.pl/wp-content/uploads/2025/07/2023_02_5_6_B2_arkusz_egzaminacyjny.pdf', keyUrl:'https://certyfikatpolski.pl/wp-content/uploads/2025/07/2023_02_5_6_B2_transkrypcja.pdf' },
+  'B1-2023-04': { level:'B1', label:'B1 · kwiecień 2023', examUrl:'https://certyfikatpolski.pl/wp-content/uploads/2025/07/2023_04_15_16_B1_arkusz_egzaminacyjny.pdf', keyUrl:'https://certyfikatpolski.pl/wp-content/uploads/2025/07/2023_04_15_16_B1_transkrypcja.pdf' },
+  'B1-2023-06': { level:'B1', label:'B1 · czerwiec 2023', examUrl:'https://certyfikatpolski.pl/wp-content/uploads/2025/07/2023_06_24_25_B1_arkusz_egzaminacyjny.pdf', keyUrl:'https://certyfikatpolski.pl/wp-content/uploads/2025/07/2023_06_24_25_B1_transkrypcja.pdf' },
+  'B1-DM-2023-06': { level:'B1', label:'B1 dla dzieci i młodzieży · czerwiec 2023', examUrl:'https://certyfikatpolski.pl/wp-content/uploads/2025/07/2023_06_24_25_B1-DiM_arkusz_egzaminacyjny.pdf', keyUrl:'https://certyfikatpolski.pl/wp-content/uploads/2025/07/2023_06_24_25_B1-DiM_transkrypcja.pdf' },
+  'B2-2023-06': { level:'B2', label:'B2 · czerwiec 2023', examUrl:'https://certyfikatpolski.pl/wp-content/uploads/2025/07/2023_06_24_25_B2_arkusz_egzaminacyjny.pdf', keyUrl:'https://certyfikatpolski.pl/wp-content/uploads/2025/07/2023_06_24_25_B2_transkrypcja.pdf.pdf' },
+  'B2-DM-2023-06': { level:'B2', label:'B2 dla dzieci i młodzieży · czerwiec 2023', examUrl:'https://certyfikatpolski.pl/wp-content/uploads/2025/07/2023_06_24_25_B2-DiM_arkusz_egzaminacyjny.pdf', keyUrl:'https://certyfikatpolski.pl/wp-content/uploads/2025/07/2023_06_24_25_B2-DiM_transkrypcja.pdf' },
+  'B1-2023-11': { level:'B1', label:'B1 · listopad 2023', examUrl:'https://certyfikatpolski.pl/wp-content/uploads/2025/07/2023_11_18_19_B1_arkusz_egzaminacyjny.pdf', keyUrl:'https://certyfikatpolski.pl/wp-content/uploads/2025/07/2023_11_18_19_B1_transkrypcja.pdf' },
+  'B1-2022-02': { level:'B1', label:'B1 · luty 2022', examUrl:'https://certyfikatpolski.pl/wp-content/uploads/2026/01/2022.02.6-7_B1_Arkusz_egzaminacyjny.pdf', keyUrl:'https://certyfikatpolski.pl/wp-content/uploads/2026/01/2022.02.6-7_B1_Transkrypcja_nagran.pdf' },
+  'B2-2022-02': { level:'B2', label:'B2 · luty 2022', examUrl:'https://certyfikatpolski.pl/wp-content/uploads/2026/01/2022.02.6-7_B2_Arkusz_egzaminacyjny.pdf', keyUrl:'https://certyfikatpolski.pl/wp-content/uploads/2026/01/2022.02.6-7_B2_Transkrypcja_nagran.pdf' },
+  'B1-2022-03': { level:'B1', label:'B1 · marzec 2022', examUrl:'https://certyfikatpolski.pl/wp-content/uploads/2026/01/2022.03.26-27_B1_Arkusz_egzaminacyjny.pdf', keyUrl:'https://certyfikatpolski.pl/wp-content/uploads/2026/01/2022.03.26-27_B1_Transkrypcja_nagran.pdf' },
+  'B1-DM-2022-03': { level:'B1', label:'B1 dla dzieci i młodzieży · marzec 2022', examUrl:'https://certyfikatpolski.pl/wp-content/uploads/2026/01/2022.03.26-27_B1_DIM_Arkusz_egzaminacyjny.pdf', keyUrl:'https://certyfikatpolski.pl/wp-content/uploads/2026/01/2022.03.26-27_B1_DIM_Transkrypcja_nagran.pdf' },
+  'B1-2022-06': { level:'B1', label:'B1 · czerwiec 2022', examUrl:'https://certyfikatpolski.pl/wp-content/uploads/2026/01/2022.06.25-26_B1_Arkusz_egzaminacyjny.pdf', keyUrl:'https://certyfikatpolski.pl/wp-content/uploads/2026/01/2022.06.25-26_B1_Transkrypcja_nagran.pdf' },
+  'B1-DM-2022-06': { level:'B1', label:'B1 dla dzieci i młodzieży · czerwiec 2022', examUrl:'https://certyfikatpolski.pl/wp-content/uploads/2026/01/2022.06.25-26_B1_DIM_Arkusz_egzaminacyjny.pdf', keyUrl:'https://certyfikatpolski.pl/wp-content/uploads/2026/01/2022.06.25-26_B1_DIM_Transkrypcja_nagran.pdf' },
+  'B2-2022-06': { level:'B2', label:'B2 · czerwiec 2022', examUrl:'https://certyfikatpolski.pl/wp-content/uploads/2026/01/2022.06.25-26_B2_Arkusz_egzaminacyjny.pdf', keyUrl:'https://certyfikatpolski.pl/wp-content/uploads/2026/01/2022.06.25-26_B2_Transkrypcja_nagran.pdf' },
+  'B2-DM-2022-06': { level:'B2', label:'B2 dla dzieci i młodzieży · czerwiec 2022', examUrl:'https://certyfikatpolski.pl/wp-content/uploads/2026/01/2022.06.25-26_B2_DIM_Arkusz_egzaminacyjny.pdf', keyUrl:'https://certyfikatpolski.pl/wp-content/uploads/2026/01/2022.06.25-26_B2_DIM_Transkrypcja_nagran.pdf' },
+  'B1-2022-11': { level:'B1', label:'B1 · listopad 2022', examUrl:'https://certyfikatpolski.pl/wp-content/uploads/2026/01/2022.11.5-6_B1_Arkusz_egzaminacyjny.pdf', keyUrl:'https://certyfikatpolski.pl/wp-content/uploads/2026/01/2022.11.5-6_B1_Transkrypcja_nagran.pdf' },
+  'B1-2021-01': { level:'B1', label:'B1 · styczeń 2021', examUrl:'https://certyfikatpolski.pl/wp-content/uploads/2026/07/2021.01.30-31_B1_Arkusz_egzaminacyjny.pdf', keyUrl:'https://certyfikatpolski.pl/wp-content/uploads/2026/07/2021.01.30-31_B1_Transkrypcja_nagran.pdf' },
+  'B1-2021-05': { level:'B1', label:'B1 · maj 2021', examUrl:'https://certyfikatpolski.pl/wp-content/uploads/2026/07/2021.05.8-9_B1_Arkusz_egzaminacyjny.pdf', keyUrl:'https://certyfikatpolski.pl/wp-content/uploads/2026/07/2021.05.8-9_B1_Transkrypcja_nagran.pdf' },
+  'B2-2021-05': { level:'B2', label:'B2 · maj 2021', examUrl:'https://certyfikatpolski.pl/wp-content/uploads/2026/07/2021.05.8-9_B2_Arkusz_egzaminacyjny.pdf', keyUrl:'https://certyfikatpolski.pl/wp-content/uploads/2026/07/2021.05.8-9_B2_Transkrypcja_nagran.pdf' },
+  'B2-DM-2021-05': { level:'B2', label:'B2 dla dzieci i młodzieży · maj 2021', examUrl:'https://certyfikatpolski.pl/wp-content/uploads/2026/07/2021.05.8-9_B2_DiM_Arkusz_egzaminacyjny.pdf', keyUrl:'https://certyfikatpolski.pl/wp-content/uploads/2026/07/2021.05.8-9_B2_DiM_Transkrypcja_nagran.pdf' },
+  'B1-2021-06': { level:'B1', label:'B1 · czerwiec 2021', examUrl:'https://certyfikatpolski.pl/wp-content/uploads/2026/07/2021.06.19-20_B1_Arkusz_egzaminacyjny.pdf', keyUrl:'https://certyfikatpolski.pl/wp-content/uploads/2026/07/2021.06.19-20_B1_Transkrypcja_nagran.pdf' },
+  'B1-DM-2021-06': { level:'B1', label:'B1 dla dzieci i młodzieży · czerwiec 2021', examUrl:'https://certyfikatpolski.pl/wp-content/uploads/2026/07/2021.06.19-20_B1_DiM_Arkusz_egzaminacyjny.pdf', keyUrl:'https://certyfikatpolski.pl/wp-content/uploads/2026/07/2021.06.19-20_B1_DiM_Transkrypcja_nagran.pdf' },
+  'B2-2021-06': { level:'B2', label:'B2 · czerwiec 2021', examUrl:'https://certyfikatpolski.pl/wp-content/uploads/2026/07/2021.06.19-20_B2_Arkusz_egzaminacyjny.pdf', keyUrl:'https://certyfikatpolski.pl/wp-content/uploads/2026/07/2021.06.19-20_B2_Transkrypcja_nagran.pdf' },
+  'B2-DM-2021-06': { level:'B2', label:'B2 dla dzieci i młodzieży · czerwiec 2021', examUrl:'https://certyfikatpolski.pl/wp-content/uploads/2026/07/2021.06.19-20_B2_DiM_Arkusz_egzaminacyjny.pdf', keyUrl:'https://certyfikatpolski.pl/wp-content/uploads/2026/07/2021.06.19-20_B2_DiM_Transkrypcja_nagran.pdf' },
+  'B1-2021-11': { level:'B1', label:'B1 · listopad 2021', examUrl:'https://certyfikatpolski.pl/wp-content/uploads/2026/07/2021.11.20-21_B1_Arkusz_egzaminacyjny.pdf', keyUrl:'https://certyfikatpolski.pl/wp-content/uploads/2026/07/2021.11.20-21_B1_Transkrypcja_nagran.pdf' },
+  'B2-2021-11': { level:'B2', label:'B2 · listopad 2021', examUrl:'https://certyfikatpolski.pl/wp-content/uploads/2026/07/2021.11.20-21_B2_Arkusz_egzaminacyjny.pdf', keyUrl:'https://certyfikatpolski.pl/wp-content/uploads/2026/07/2021.11.20-21_B2_Transkrypcja_nagran.pdf' }
+};
+function getSections(examId){ return EXAMS[examId]; }
+
+/* ============================================================
+   Supabase — реальная база вместо localStorage.
+   ============================================================ */
+const SUPABASE_URL = 'https://vtgntvtgfvmvdojraprj.supabase.co';
+const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InZ0Z250dnRnZnZtdmRvanJhcHJqIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODcwNDk5MDgsImV4cCI6MjEwMjYyNTkwOH0.RzKmr4J3JhdzlBERB1BjRPNnSF1cViHBa-DhsQPgH1g';
+const sb = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+
+function syntheticEmail(login){ return login.trim().toLowerCase()+'@pjp-platform.internal'; }
+
+function mapAttempt(row){
+  return {
+    id: row.id, studentId: row.student_id, examId: row.exam_id,
+    assignedAt: row.assigned_at, startedAt: row.started_at, finishedAt: row.finished_at,
+    answers: row.answers || {}, writingFileName: row.writing_file_name,
+    marks: row.marks || {}, comment: row.comment || '',
+    released: row.released, releasedAt: row.released_at
+  };
+}
+
+/* ---- tutor-side (real Supabase Auth session, RLS-protected) ---- */
+async function sbTutorSignUp(name, login, password){
+  const { data, error } = await sb.auth.signUp({
+    email: syntheticEmail(login), password, options:{ data:{ name } }
+  });
+  return { data, error };
+}
+async function sbTutorSignIn(login, password){
+  const { data, error } = await sb.auth.signInWithPassword({ email: syntheticEmail(login), password });
+  return { data, error };
+}
+async function sbTutorSignOut(){ await sb.auth.signOut(); }
+async function sbCurrentTutor(){
+  const { data:{ user } } = await sb.auth.getUser();
+  if(!user) return null;
+  const { data, error } = await sb.from('tutors').select('id,name').eq('id', user.id).single();
+  if(error || !data) return null;
+  return data;
+}
+async function sbListStudents(){
+  const { data, error } = await sb.from('students').select('*').order('created_at', {ascending:true});
+  if(error){ console.error(error); return []; }
+  return data || [];
+}
+async function sbAddStudent(name, nickname, password, level, tutorId){
+  const { error } = await sb.from('students').insert({ tutor_id: tutorId, name, nickname, password, level });
+  return error;
+}
+async function sbListAttempts(){
+  const { data, error } = await sb.from('attempts').select('*');
+  if(error){ console.error(error); return []; }
+  return (data||[]).map(mapAttempt);
+}
+async function sbAssignTest(studentId, examId){
+  const { error } = await sb.from('attempts').insert({ student_id: studentId, exam_id: examId });
+  return error;
+}
+async function sbUpdateMarks(attemptId, marks){
+  const { error } = await sb.from('attempts').update({ marks }).eq('id', attemptId);
+  return error;
+}
+async function sbReleaseAttempt(attemptId, comment){
+  const { error } = await sb.from('attempts').update({ comment, released:true, released_at:new Date().toISOString() }).eq('id', attemptId);
+  return error;
+}
+
+/* ---- student-side (no real session — RPC functions check nickname/password) ---- */
+async function sbStudentLogin(nickname, password){
+  const { data, error } = await sb.rpc('student_login', { p_nickname: nickname, p_password: password });
+  if(error || !data || !data.length) return null;
+  return data[0];
+}
+async function sbStudentAttempts(studentId){
+  const { data, error } = await sb.rpc('get_student_attempts', { p_student_id: studentId });
+  if(error){ console.error(error); return []; }
+  return (data||[]).map(mapAttempt);
+}
+async function sbStudentSaveProgress(attemptId, studentId, answers, writingFileName){
+  await sb.rpc('save_student_progress', { p_attempt_id: attemptId, p_student_id: studentId, p_answers: answers, p_writing_file_name: writingFileName || null });
+}
+async function sbStudentFinish(attemptId, studentId, answers){
+  await sb.rpc('finish_student_attempt', { p_attempt_id: attemptId, p_student_id: studentId, p_answers: answers });
+}
+
+function withScrollPreserved(fn){
+  const y = window.scrollY;
+  fn();
+  requestAnimationFrame(()=>window.scrollTo(0,y));
+}
+
+/* ---- app state + local cache (populated by async fetches before each render) ---- */
+let state = { screen:'loading', authMode:'tutor', authError:'', active:0, timers:{}, running:{}, currentAttemptId:null, selectedAttemptId:null, assignLevel:{} };
+let cache = { tutor:null, students:[], attempts:[], student:null, studentAttempts:[] };
+
+const appEl = document.getElementById('app');
+const headerControlsEl = document.getElementById('headerControls');
+
+function fmt(sec){ const m=Math.floor(sec/60), s=sec%60; return String(m).padStart(2,'0')+':'+String(s).padStart(2,'0'); }
+function esc(s){ return (s||'').toString().replace(/[<>&"]/g, c=>({'<':'&lt;','>':'&gt;','&':'&amp;','"':'&quot;'}[c])); }
+
+async function boot(){
+  const tutor = await sbCurrentTutor();
+  if(tutor){ cache.tutor = tutor; state.screen='tutorDash'; render(); return; }
+  const savedStudent = localStorage.getItem('pjp_student');
+  if(savedStudent){ cache.student = JSON.parse(savedStudent); state.screen='studentDash'; render(); return; }
+  state.screen='auth'; render();
+}
+
+function tutorLogout(){ sbTutorSignOut(); cache.tutor=null; state.screen='auth'; state.authError=''; render(); }
+function studentLogout(){ localStorage.removeItem('pjp_student'); cache.student=null; state.screen='auth'; state.authError=''; render(); }
+
+function renderAuth(){
+  headerControlsEl.innerHTML='';
+  document.getElementById('pageTitle').textContent='PJP C1 — вход';
+  const mode = state.authMode;
+  let html = `<div class="authbox">
+    <div style="display:flex; gap:6px; margin-bottom:16px;">
+      <button class="btn ${mode==='tutor'?'on':''}" id="modeTutor" style="flex:1;">Репетитор</button>
+      <button class="btn ${mode==='student'?'on':''}" id="modeStudent" style="flex:1;">Ученик</button>
+    </div>`;
+  if(state.authError) html += `<div class="err">${esc(state.authError)}</div>`;
+  if(mode==='tutor'){
+    html += `<h2>Вход репетитора</h2>
+      <input id="loginInput" placeholder="логин">
+      <input id="passInput" type="password" placeholder="пароль">
+      <button class="btn crimson" id="loginBtn">Войти</button>
+      <div class="authswitch">Нет аккаунта? <a id="toRegister">Зарегистрироваться</a></div>`;
+  } else {
+    html += `<h2>Вход ученика</h2>
+      <input id="loginInput" placeholder="ник">
+      <input id="passInput" type="password" placeholder="пароль">
+      <button class="btn crimson" id="loginBtn">Войти</button>
+      <div class="authswitch">Ник и пароль выдаёт ваш репетитор.</div>`;
+  }
+  html += `</div>`;
+  appEl.innerHTML = html;
+
+  document.getElementById('modeTutor').onclick=()=>{ state.authMode='tutor'; state.authError=''; render(); };
+  document.getElementById('modeStudent').onclick=()=>{ state.authMode='student'; state.authError=''; render(); };
+
+  document.getElementById('loginBtn').onclick=async ()=>{
+    const login = document.getElementById('loginInput').value.trim();
+    const pass = document.getElementById('passInput').value;
+    if(!login || !pass){ state.authError='Заполните оба поля.'; render(); return; }
+    if(mode==='tutor'){
+      const { error } = await sbTutorSignIn(login, pass);
+      if(error){ state.authError='Неверный логин или пароль.'; render(); return; }
+      const tutor = await sbCurrentTutor();
+      cache.tutor = tutor;
+      state.screen='tutorDash'; state.authError=''; render();
+    } else {
+      const s = await sbStudentLogin(login, pass);
+      if(!s){ state.authError='Неверный ник или пароль.'; render(); return; }
+      cache.student = s;
+      localStorage.setItem('pjp_student', JSON.stringify(s));
+      state.screen='studentDash'; state.authError=''; render();
+    }
+  };
+  if(mode==='tutor'){
+    document.getElementById('toRegister').onclick=()=>{ state.screen='tutorRegister'; state.authError=''; render(); };
+  }
+}
+
+function renderTutorRegister(){
+  headerControlsEl.innerHTML='';
+  document.getElementById('pageTitle').textContent='PJP C1 — регистрация репетитора';
+  let html = `<div class="authbox"><h2>Регистрация репетитора</h2>`;
+  if(state.authError) html += `<div class="err">${esc(state.authError)}</div>`;
+  html += `
+    <input id="nameInput" placeholder="имя">
+    <input id="loginInput" placeholder="логин">
+    <input id="passInput" type="password" placeholder="пароль (минимум 6 символов)">
+    <button class="btn crimson" id="regBtn">Создать аккаунт</button>
+    <div class="authswitch"><a id="toLogin">← назад ко входу</a></div>
+  </div>`;
+  appEl.innerHTML = html;
+  document.getElementById('toLogin').onclick=()=>{ state.screen='auth'; state.authError=''; render(); };
+  document.getElementById('regBtn').onclick=async ()=>{
+    const name=document.getElementById('nameInput').value.trim();
+    const login=document.getElementById('loginInput').value.trim();
+    const pass=document.getElementById('passInput').value;
+    if(!name||!login||!pass){ state.authError='Заполните все поля.'; render(); return; }
+    if(pass.length<6){ state.authError='Пароль должен быть не короче 6 символов.'; render(); return; }
+    const { error } = await sbTutorSignUp(name, login, pass);
+    if(error){ state.authError = error.message.includes('already') ? 'Такой логин уже занят.' : error.message; render(); return; }
+    const { error: signInErr } = await sbTutorSignIn(login, pass);
+    if(signInErr){ state.authError='Аккаунт создан, но не удалось войти автоматически — попробуйте войти вручную.'; state.screen='auth'; render(); return; }
+    const tutor = await sbCurrentTutor();
+    cache.tutor = tutor;
+    state.screen='tutorDash'; state.authError=''; render();
+  };
+}
+
+function renderRoleToggle(){
+  return `<button class="btn on" id="logoutBtn">Выйти</button>`;
+}
+
+function statusOf(att){
+  if(att.released) return 'reviewed';
+  if(att.finishedAt) return 'awaiting';
+  if(att.startedAt) return 'in_progress';
+  return 'assigned';
+}
+const STATUS_LABEL = {assigned:'назначен', in_progress:'проходит', awaiting:'ждёт проверки', reviewed:'проверено'};
+
+const LEVELS = ['A2','B1','B2','C1'];
+function examOptionsForLevel(level){
+  return Object.keys(EXAM_META).filter(k=>EXAM_META[k].level===level);
+}
+
+async function refreshTutorCache(){
+  cache.students = await sbListStudents();
+  cache.attempts = await sbListAttempts();
+}
+
+async function renderTutorDash(){
+  document.getElementById('pageTitle').textContent='PJP C1 — кабинет репетитора';
+  headerControlsEl.innerHTML = `<span style="font-family:var(--mono); font-size:11px; color:var(--ink-soft);">${esc(cache.tutor?cache.tutor.name:'')}</span>` + renderRoleToggle();
+  document.getElementById('logoutBtn').onclick=tutorLogout;
+
+  appEl.innerHTML = `<div class="page"><div class="manual-note" style="padding:14px; border:1px solid var(--paper-line);">Загрузка…</div></div>`;
+  await refreshTutorCache();
+
+  const students = cache.students, attempts = cache.attempts;
+  let html = `<div class="page">
+    <div class="section-head"><h2>Мои ученики</h2><button class="btn crimson" id="addStudentBtn">+ Добавить ученика</button></div>`;
+
+  if(students.length===0) html += `<div class="manual-note">Пока нет учеников — добавьте первого.</div>`;
+
+  students.forEach(st=>{
+    const myAttempts = attempts.filter(a=>a.studentId===st.id).sort((a,b)=>(b.assignedAt||'').localeCompare(a.assignedAt||''));
+    const lvl = state.assignLevel[st.id] || st.level || 'C1';
+    html += `<div class="student-card">
+      <div class="top"><div><b>${esc(st.name)}</b> <span class="meta">@${esc(st.nickname)} · ${esc(st.level)}</span></div>
+        <div class="assign-row">
+          <div style="display:flex; gap:4px;">${LEVELS.map(l=>`<button class="btn ${lvl===l?'on':''}" data-lvlbtn="${st.id}" data-lvl="${l}" style="padding:6px 8px;">${l}</button>`).join('')}</div>
+          <select id="examPick_${st.id}">${examOptionsForLevel(lvl).map(k=>`<option value="${k}">${EXAM_META[k].label}</option>`).join('')}</select>
+          <button class="btn" data-assign="${st.id}">Назначить тест</button>
+        </div>
+      </div>
+      <div style="margin-top:10px;">${myAttempts.length===0 ? '<span class="manual-note" style="padding:0;">Ещё ничего не назначено.</span>' : myAttempts.map(a=>{
+        const st5=statusOf(a);
+        return `<span class="attempt-chip ${st5}" data-openattempt="${a.id}"><span class="dot"></span>${EXAM_META[a.examId].label} — ${STATUS_LABEL[st5]}</span>`;
+      }).join('')}</div>
+    </div>`;
+  });
+
+  html += `</div>`;
+  appEl.innerHTML = html;
+
+  document.getElementById('addStudentBtn').onclick=()=>{ state.screen='addStudent'; render(); };
+  appEl.querySelectorAll('[data-lvlbtn]').forEach(b=>{
+    b.onclick=()=>{ withScrollPreserved(()=>{ state.assignLevel[b.dataset.lvlbtn]=b.dataset.lvl; renderTutorDashSync(); }); };
+  });
+  appEl.querySelectorAll('[data-assign]').forEach(b=>{
+    b.onclick=async ()=>{
+      const stId=b.dataset.assign;
+      const examId=document.getElementById('examPick_'+stId).value;
+      await sbAssignTest(stId, examId);
+      render();
+    };
+  });
+  appEl.querySelectorAll('[data-openattempt]').forEach(b=>{
+    b.onclick=()=>{ state.selectedAttemptId=b.dataset.openattempt; state.screen='tutorReview'; render(); };
+  });
+}
+
+/* re-render dash from cache without refetching (used for level-toggle clicks) */
+function renderTutorDashSync(){
+  const students = cache.students, attempts = cache.attempts;
+  let html = `<div class="page">
+    <div class="section-head"><h2>Мои ученики</h2><button class="btn crimson" id="addStudentBtn">+ Добавить ученика</button></div>`;
+  if(students.length===0) html += `<div class="manual-note">Пока нет учеников — добавьте первого.</div>`;
+  students.forEach(st=>{
+    const myAttempts = attempts.filter(a=>a.studentId===st.id).sort((a,b)=>(b.assignedAt||'').localeCompare(a.assignedAt||''));
+    const lvl = state.assignLevel[st.id] || st.level || 'C1';
+    html += `<div class="student-card">
+      <div class="top"><div><b>${esc(st.name)}</b> <span class="meta">@${esc(st.nickname)} · ${esc(st.level)}</span></div>
+        <div class="assign-row">
+          <div style="display:flex; gap:4px;">${LEVELS.map(l=>`<button class="btn ${lvl===l?'on':''}" data-lvlbtn="${st.id}" data-lvl="${l}" style="padding:6px 8px;">${l}</button>`).join('')}</div>
+          <select id="examPick_${st.id}">${examOptionsForLevel(lvl).map(k=>`<option value="${k}">${EXAM_META[k].label}</option>`).join('')}</select>
+          <button class="btn" data-assign="${st.id}">Назначить тест</button>
+        </div>
+      </div>
+      <div style="margin-top:10px;">${myAttempts.length===0 ? '<span class="manual-note" style="padding:0;">Ещё ничего не назначено.</span>' : myAttempts.map(a=>{
+        const st5=statusOf(a);
+        return `<span class="attempt-chip ${st5}" data-openattempt="${a.id}"><span class="dot"></span>${EXAM_META[a.examId].label} — ${STATUS_LABEL[st5]}</span>`;
+      }).join('')}</div>
+    </div>`;
+  });
+  html += `</div>`;
+  appEl.innerHTML = html;
+  document.getElementById('addStudentBtn').onclick=()=>{ state.screen='addStudent'; render(); };
+  appEl.querySelectorAll('[data-lvlbtn]').forEach(b=>{
+    b.onclick=()=>{ withScrollPreserved(()=>{ state.assignLevel[b.dataset.lvlbtn]=b.dataset.lvl; renderTutorDashSync(); }); };
+  });
+  appEl.querySelectorAll('[data-assign]').forEach(b=>{
+    b.onclick=async ()=>{
+      const stId=b.dataset.assign;
+      const examId=document.getElementById('examPick_'+stId).value;
+      await sbAssignTest(stId, examId);
+      render();
+    };
+  });
+  appEl.querySelectorAll('[data-openattempt]').forEach(b=>{
+    b.onclick=()=>{ state.selectedAttemptId=b.dataset.openattempt; state.screen='tutorReview'; render(); };
+  });
+}
+
+function renderAddStudent(){
+  document.getElementById('pageTitle').textContent='PJP C1 — новый ученик';
+  headerControlsEl.innerHTML = `<button class="btn" id="backBtn">← назад</button>`;
+  document.getElementById('backBtn').onclick=()=>{ state.screen='tutorDash'; render(); };
+
+  let html = `<div class="authbox"><h2>Добавить ученика</h2>`;
+  if(state.formError) html += `<div class="err">${esc(state.formError)}</div>`;
+  html += `
+    <input id="nameInput" placeholder="имя ученика">
+    <input id="nickInput" placeholder="ник (для входа)">
+    <input id="passInput" type="password" placeholder="пароль (для входа)">
+    <select id="levelInput">
+      <option>A2</option><option>B1</option><option selected>B2</option><option>C1</option>
+    </select>
+    <button class="btn crimson" id="saveStudentBtn">Сохранить</button>
+  </div>`;
+  appEl.innerHTML = html;
+
+  document.getElementById('saveStudentBtn').onclick=async ()=>{
+    const name=document.getElementById('nameInput').value.trim();
+    const nickname=document.getElementById('nickInput').value.trim();
+    const pass=document.getElementById('passInput').value;
+    const level=document.getElementById('levelInput').value;
+    if(!name||!nickname||!pass){ state.formError='Заполните все поля.'; render(); return; }
+    const error = await sbAddStudent(name, nickname, pass, level, cache.tutor.id);
+    if(error){ state.formError = error.message.includes('duplicate') ? 'Такой ник уже занят.' : error.message; render(); return; }
+    state.formError='';
+    state.screen='tutorDash'; render();
+  };
+}
+
+function taskMarkScore(attempt, task){
+  const n = task.n || (task.letters?task.letters.length:0);
+  let ok=0;
+  for(let i=0;i<n;i++){ if((attempt.marks||{})[task.id+':'+i]==='ok') ok++; }
+  return {ok, total:n};
+}
+function sectionMarkScore(attempt, section){
+  let ok=0,total=0;
+  section.tasks.forEach(t=>{ const r=taskMarkScore(attempt,t); ok+=r.ok; total+=r.total; });
+  return {ok,total};
+}
+
+async function renderTutorReview(){
+  document.getElementById('pageTitle').textContent='PJP C1 — проверка работы';
+  headerControlsEl.innerHTML = `<button class="btn" id="backBtn">← к ученикам</button>`;
+  document.getElementById('backBtn').onclick=()=>{ state.screen='tutorDash'; state.selectedAttemptId=null; render(); };
+
+  await refreshTutorCache();
+  const attempt = cache.attempts.find(a=>a.id===state.selectedAttemptId);
+  if(!attempt){ appEl.innerHTML='<div class="page">Работа не найдена.</div>'; return; }
+  const student = cache.students.find(s=>s.id===attempt.studentId);
+  const SECTIONS = getSections(attempt.examId);
+
+  if(!attempt.finishedAt){
+    appEl.innerHTML = `<div class="page"><div class="manual-note" style="padding:14px; border:1px solid var(--paper-line);">Ученик ${esc(student?student.name:'')} ещё не завершил этот тест (статус: ${STATUS_LABEL[statusOf(attempt)]}). Проверка станет доступна после завершения.</div></div>`;
+    return;
+  }
+
+  let html = `<div class="page">
+    <div class="klucz-pin">
+      <a class="btn" href="${EXAM_META[attempt.examId].examUrl}" target="_blank" rel="noopener">📄 Открыть Arkusz</a>
+      <a class="btn crimson" href="${EXAM_META[attempt.examId].keyUrl}" target="_blank" rel="noopener">🔑 Открыть Klucz (официальный ответ)</a>
+      <span style="font-family:var(--mono); font-size:11px; color:var(--ink-soft); margin-left:10px;">Ученик: <b>${esc(student?student.name:'')}</b> · ${EXAM_META[attempt.examId].label}</span>
+      ${attempt.released?'<span style="font-family:var(--mono); font-size:11px; color:var(--ok); margin-left:10px;">✓ отправлено</span>':''}
+    </div>`;
+
+  let totalOk=0, totalAll=0;
+  SECTIONS.forEach(s=>{ const r=sectionMarkScore(attempt,s); totalOk+=r.ok; totalAll+=r.total; });
+  html += `<div class="tutor-score"><span>Всего отмечено верно</span><b>${totalOk} / ${totalAll}</b></div>`;
+
+  SECTIONS.forEach(s=>{
+    if(!s.tasks.length) return;
+    const secScore = sectionMarkScore(attempt, s);
+    html += `<h3 style="font-weight:400; border-bottom:1px solid var(--paper-line); padding-bottom:6px; display:flex; justify-content:space-between;"><span>${s.label}</span><span style="font-family:var(--mono); font-size:12px; color:var(--ink-soft);">${secScore.ok} / ${secScore.total}</span></h3>`;
+    s.tasks.forEach(task=>{
+      const tscore = taskMarkScore(attempt, task);
+      html += `<div class="task"><div class="task-title"><span>${task.title}</span><span class="tscore">${tscore.ok} / ${tscore.total}</span></div><div class="items">`;
+      const n = task.n || (task.letters?task.letters.length:0);
+      for(let i=0;i<n;i++){
+        const studentVal = (attempt.answers[task.id]||{})[i];
+        const markKey = task.id+':'+i;
+        const mark = (attempt.marks||{})[markKey];
+        const label = task.letters ? task.letters[i] : (i+1);
+        html += `<div class="item"><span class="qn">${label}.</span>
+          <span class="student-answer">${studentVal!=null && studentVal!=='' ? esc(studentVal) : '—'}</span>
+          <div class="mark-row">
+            <button class="mark-btn ok ${mark==='ok'?'on':''}" data-mark="${markKey}" data-val="ok">✓</button>
+            <button class="mark-btn bad ${mark==='bad'?'on':''}" data-mark="${markKey}" data-val="bad">✗</button>
+          </div>
+        </div>`;
+      }
+      html += `</div></div>`;
+    });
+  });
+
+  if(attempt.writingFileName){
+    html += `<div class="task"><div class="task-title">Pisanie — файл ученика</div><div class="manual-note">${esc(attempt.writingFileName)} (на реальной платформе подключите загрузку файла на сервер)</div></div>`;
+  }
+
+  html += `<div class="comment-box"><label style="font-family:var(--mono); font-size:11px; color:var(--ink-soft);">Комментарий ученику (общий, к обсуждению на занятии)</label>
+    <textarea id="tutorComment" placeholder="Например: обрати внимание на аспект глагола, разберём на уроке">${esc(attempt.comment||'')}</textarea></div>
+    <button class="btn crimson" id="sendResultsBtn">${attempt.released?'↻ Обновить результаты у ученика':'✉ Отправить результаты ученику'}</button>
+  </div>`;
+
+  appEl.innerHTML = html;
+  appEl.querySelectorAll('[data-mark]').forEach(b=>{
+    b.onclick=async ()=>{
+      attempt.marks = attempt.marks || {};
+      const key=b.dataset.mark, val=b.dataset.val;
+      attempt.marks[key] = attempt.marks[key]===val ? null : val;
+      await sbUpdateMarks(attempt.id, attempt.marks);
+      withScrollPreserved(()=>{ renderTutorReviewSync(attempt, student, SECTIONS); });
+    };
+  });
+  document.getElementById('sendResultsBtn').onclick=async ()=>{
+    const comment = document.getElementById('tutorComment').value;
+    await sbReleaseAttempt(attempt.id, comment);
+    render();
+  };
+}
+
+/* re-render review from already-loaded attempt object (for mark clicks, no refetch) */
+function renderTutorReviewSync(attempt, student, SECTIONS){
+  let html = `<div class="page">
+    <div class="klucz-pin">
+      <a class="btn" href="${EXAM_META[attempt.examId].examUrl}" target="_blank" rel="noopener">📄 Открыть Arkusz</a>
+      <a class="btn crimson" href="${EXAM_META[attempt.examId].keyUrl}" target="_blank" rel="noopener">🔑 Открыть Klucz (официальный ответ)</a>
+      <span style="font-family:var(--mono); font-size:11px; color:var(--ink-soft); margin-left:10px;">Ученик: <b>${esc(student?student.name:'')}</b> · ${EXAM_META[attempt.examId].label}</span>
+      ${attempt.released?'<span style="font-family:var(--mono); font-size:11px; color:var(--ok); margin-left:10px;">✓ отправлено</span>':''}
+    </div>`;
+  let totalOk=0, totalAll=0;
+  SECTIONS.forEach(s=>{ const r=sectionMarkScore(attempt,s); totalOk+=r.ok; totalAll+=r.total; });
+  html += `<div class="tutor-score"><span>Всего отмечено верно</span><b>${totalOk} / ${totalAll}</b></div>`;
+  SECTIONS.forEach(s=>{
+    if(!s.tasks.length) return;
+    const secScore = sectionMarkScore(attempt, s);
+    html += `<h3 style="font-weight:400; border-bottom:1px solid var(--paper-line); padding-bottom:6px; display:flex; justify-content:space-between;"><span>${s.label}</span><span style="font-family:var(--mono); font-size:12px; color:var(--ink-soft);">${secScore.ok} / ${secScore.total}</span></h3>`;
+    s.tasks.forEach(task=>{
+      const tscore = taskMarkScore(attempt, task);
+      html += `<div class="task"><div class="task-title"><span>${task.title}</span><span class="tscore">${tscore.ok} / ${tscore.total}</span></div><div class="items">`;
+      const n = task.n || (task.letters?task.letters.length:0);
+      for(let i=0;i<n;i++){
+        const studentVal = (attempt.answers[task.id]||{})[i];
+        const markKey = task.id+':'+i;
+        const mark = (attempt.marks||{})[markKey];
+        const label = task.letters ? task.letters[i] : (i+1);
+        html += `<div class="item"><span class="qn">${label}.</span>
+          <span class="student-answer">${studentVal!=null && studentVal!=='' ? esc(studentVal) : '—'}</span>
+          <div class="mark-row">
+            <button class="mark-btn ok ${mark==='ok'?'on':''}" data-mark="${markKey}" data-val="ok">✓</button>
+            <button class="mark-btn bad ${mark==='bad'?'on':''}" data-mark="${markKey}" data-val="bad">✗</button>
+          </div>
+        </div>`;
+      }
+      html += `</div></div>`;
+    });
+  });
+  if(attempt.writingFileName){
+    html += `<div class="task"><div class="task-title">Pisanie — файл ученика</div><div class="manual-note">${esc(attempt.writingFileName)} (на реальной платформе подключите загрузку файла на сервер)</div></div>`;
+  }
+  html += `<div class="comment-box"><label style="font-family:var(--mono); font-size:11px; color:var(--ink-soft);">Комментарий ученику (общий, к обсуждению на занятии)</label>
+    <textarea id="tutorComment" placeholder="Например: обрати внимание на аспект глагола, разберём на уроке">${esc(attempt.comment||'')}</textarea></div>
+    <button class="btn crimson" id="sendResultsBtn">${attempt.released?'↻ Обновить результаты у ученика':'✉ Отправить результаты ученику'}</button>
+  </div>`;
+  appEl.innerHTML = html;
+  appEl.querySelectorAll('[data-mark]').forEach(b=>{
+    b.onclick=async ()=>{
+      attempt.marks = attempt.marks || {};
+      const key=b.dataset.mark, val=b.dataset.val;
+      attempt.marks[key] = attempt.marks[key]===val ? null : val;
+      await sbUpdateMarks(attempt.id, attempt.marks);
+      withScrollPreserved(()=>{ renderTutorReviewSync(attempt, student, SECTIONS); });
+    };
+  });
+  document.getElementById('sendResultsBtn').onclick=async ()=>{
+    const comment = document.getElementById('tutorComment').value;
+    await sbReleaseAttempt(attempt.id, comment);
+    render();
+  };
+}
+
+async function renderStudentDash(){
+  document.getElementById('pageTitle').textContent='PJP C1 — мои тесты';
+  headerControlsEl.innerHTML = `<span style="font-family:var(--mono); font-size:11px; color:var(--ink-soft);">${esc(cache.student.name)} · ${esc(cache.student.level)}</span>` + renderRoleToggle();
+  document.getElementById('logoutBtn').onclick=studentLogout;
+
+  appEl.innerHTML = `<div class="page"><div class="manual-note" style="padding:14px; border:1px solid var(--paper-line);">Загрузка…</div></div>`;
+  cache.studentAttempts = await sbStudentAttempts(cache.student.id);
+
+  const attempts = [...cache.studentAttempts].sort((a,b)=>(b.assignedAt||'').localeCompare(a.assignedAt||''));
+  let html = `<div class="page"><h2 style="font-weight:400;">Назначенные тесты</h2>`;
+  if(attempts.length===0) html += `<div class="manual-note">Пока ничего не назначено — обратитесь к репетитору.</div>`;
+  attempts.forEach(a=>{
+    const st5 = statusOf(a);
+    let actionLabel = 'Начать';
+    if(st5==='in_progress') actionLabel='Продолжить';
+    if(st5==='awaiting') actionLabel='Ждёт проверки репетитором';
+    if(st5==='reviewed') actionLabel='Посмотреть результат';
+    html += `<div class="attempt-chip ${st5}" data-open="${a.id}" style="display:flex; width:100%; justify-content:space-between; padding:12px 14px; margin:0 0 8px;">
+      <span><span class="dot"></span> ${EXAM_META[a.examId].label} — ${STATUS_LABEL[st5]}</span>
+      <b style="font-family:var(--mono); font-size:11px;">${actionLabel} →</b>
+    </div>`;
+  });
+  html += `</div>`;
+  appEl.innerHTML = html;
+  appEl.querySelectorAll('[data-open]').forEach(el=>{
+    el.style.cursor='pointer';
+    el.onclick=async ()=>{
+      const att = cache.studentAttempts.find(a=>a.id===el.dataset.open);
+      const st5 = statusOf(att);
+      if(st5==='awaiting'){ return; }
+      state.currentAttemptId = att.id;
+      state.screen='studentTest';
+      await loadAttemptIntoTestState(att);
+      render();
+    };
+  });
+}
+
+let testAnswers = {}, testFinishedFlag=false, testExamId=null;
+
+async function loadAttemptIntoTestState(att){
+  testAnswers = JSON.parse(JSON.stringify(att.answers||{}));
+  testExamId = att.examId;
+  testFinishedFlag = !!att.finishedAt;
+  state.active = 0;
+  state.timers = {}; state.running = {};
+  state.arkuszAutoOpened = false;
+  getSections(testExamId).forEach(s=>{ state.timers[s.id]=s.minutes*60; state.running[s.id]=false; });
+  if(!att.startedAt){
+    await sbStudentSaveProgress(att.id, cache.student.id, testAnswers, att.writingFileName);
+  }
+}
+
+function setAns(taskId, idx, val){ testAnswers[taskId]=testAnswers[taskId]||{}; testAnswers[taskId][idx]=val; }
+function getAns(taskId, idx){ return (testAnswers[taskId]||{})[idx]; }
+
+function tick(){
+  if(state.screen!=='studentTest' || testFinishedFlag) return;
+  const SECTIONS=getSections(testExamId);
+  SECTIONS.forEach(s=>{ if(state.running[s.id] && state.timers[s.id]>0){ state.timers[s.id]--; if(state.timers[s.id]===0) state.running[s.id]=false; } });
+  const tabsEl=document.getElementById('tabs');
+  if(tabsEl) renderTabs();
+  const cur=SECTIONS[state.active], tb=document.getElementById('timerbox');
+  if(tb){ tb.textContent=fmt(state.timers[cur.id]); tb.classList.toggle('low', state.timers[cur.id]<300); }
+}
+setInterval(tick,1000);
+
+function renderTabs(){
+  const SECTIONS=getSections(testExamId);
+  const tabsEl=document.getElementById('tabs');
+  if(!tabsEl) return;
+  tabsEl.innerHTML = SECTIONS.map((s,i)=>`
+    <div class="tab ${i===state.active?'active':''}" data-i="${i}">
+      <span class="n">${String(i+1).padStart(2,'0')}</span>${s.label}
+      <span class="clock">${fmt(state.timers[s.id])}</span>
+    </div>`).join('');
+  [...tabsEl.children].forEach(el=>el.onclick=()=>{ withScrollPreserved(()=>{ state.active=+el.dataset.i; renderStudentTest(); }); });
+}
+
+function renderStudentTest(){
+  document.getElementById('pageTitle').textContent='PJP C1 — '+EXAM_META[testExamId].label;
+  headerControlsEl.innerHTML = `<button class="btn" id="backBtn">← к тестам</button>` +
+    `<a class="btn" id="openArkuszBtn" href="${EXAM_META[testExamId].examUrl}" target="_blank" rel="noopener">📄 Открыть arkusz</a>` +
+    (testFinishedFlag ? '' : `<button class="btn crimson" id="finishBtn">✓ Завершить тест</button>`);
+  document.getElementById('backBtn').onclick=()=>{ saveProgress(); state.screen='studentDash'; render(); };
+  if(!testFinishedFlag) document.getElementById('finishBtn').onclick=confirmFinish;
+
+  if(!state.arkuszAutoOpened){
+    state.arkuszAutoOpened = true;
+    window.open(EXAM_META[testExamId].examUrl, '_blank');
+  }
+
+  const SECTIONS = getSections(testExamId);
+  const s = SECTIONS[state.active];
+
+  let html = `<nav class="tabs" id="tabs"></nav><div class="banner" id="resultsBanner"></div><main>`;
+  html += `<div class="section-head">
+    <div><h2>${String(state.active+1).padStart(2,'0')} · ${s.label}</h2>
+      <div class="section-meta">${s.tasks.length?s.tasks.length+' zadań · ':''}${s.points} pkt · limit ${s.minutes} min</div></div>
+    <div class="timer-controls">
+      <button class="btn" id="timerToggle" ${testFinishedFlag?'disabled':''}>${state.running[s.id]?'⏸ Пауза':'▶ Старт'}</button>
+      <div class="timerbox ${state.timers[s.id]<300?'low':''}" id="timerbox">${fmt(state.timers[s.id])}</div>
+    </div></div>`;
+
+  if(s.id==='writing'){
+    html += `<div class="task-note" style="margin-bottom:14px;">Темы заданий — в arkusz официального сайта. Прикрепите готовый файл с ответом.</div>
+      <div class="task"><div class="task-title">Ваш ответ (файл)</div><div style="padding:14px;">
+        <input type="file" id="writingFile" ${testFinishedFlag?'disabled':''}>
+        <div class="manual-note" id="writingFileName">${state.writingFileName?'Прикреплено: '+esc(state.writingFileName):'Файл не прикреплён'}</div>
+      </div></div></main>`;
+    appEl.innerHTML = html;
+    renderTabs();
+    const fi=document.getElementById('writingFile');
+    if(fi) fi.addEventListener('change', e=>{ const f=e.target.files[0]; if(!f) return; state.writingFileName=f.name; document.getElementById('writingFileName').textContent='Прикреплено: '+esc(f.name); saveProgress(); });
+    document.getElementById('timerToggle').onclick=()=>{ withScrollPreserved(()=>{ state.running[s.id]=!state.running[s.id]; renderStudentTest(); }); };
+    return;
+  }
+
+  if(s.id==='listening' && !testFinishedFlag){
+    html += `<div class="audiobox"><label>🔊 своё аудио (mp3)</label>
+      <input type="file" id="audioFile" accept="audio/*" style="display:block;margin-top:6px;font-family:var(--mono);font-size:11px;">
+      <audio id="player" controls style="display:none;"></audio></div>`;
+  }
+  html += `</main>`;
+  appEl.innerHTML = html;
+  renderTabs();
+
+  const mainEl = document.querySelector('main');
+  s.tasks.forEach(task=>{
+    const box=document.createElement('div'); box.className='task';
+    box.innerHTML = `<div class="task-title">${task.title}</div>` + (task.note?`<div class="task-note">${task.note}</div>`:'');
+    const items=document.createElement('div'); items.className='items';
+    if(task.type==='mc'){
+      const opts = task.opts || ['a','b','c'];
+      items.innerHTML = Array.from({length:task.n}).map((_,i)=>{
+        const picked=getAns(task.id,i);
+        return `<div class="item"><span class="qn">${i+1}.</span><div class="choices">
+          ${opts.map(c=>`<button type="button" class="choice ${picked===c?'picked':''}" data-t="${task.id}" data-i="${i}" data-v="${c}" ${testFinishedFlag?'disabled':''}>${c}</button>`).join('')}
+        </div></div>`;
+      }).join('');
+    } else if(task.type==='open'){
+      items.innerHTML = Array.from({length:task.n}).map((_,i)=>{
+        const val=getAns(task.id,i)||'';
+        return `<div class="item"><span class="qn">${i+1}.</span><input class="txtin" data-t="${task.id}" data-i="${i}" value="${esc(val)}" placeholder="ответ" ${testFinishedFlag?'disabled':''}></div>`;
+      }).join('');
+    } else if(task.type==='match'){
+      items.innerHTML = task.letters.map((L,i)=>{
+        const val=getAns(task.id,i)||'';
+        return `<div class="item"><span class="qn">${L}</span><select class="matchsel" data-t="${task.id}" data-i="${i}" ${testFinishedFlag?'disabled':''}>
+          <option value="">—</option>${task.options.map(o=>`<option value="${o}" ${String(val)===String(o)?'selected':''}>${o}</option>`).join('')}
+        </select></div>`;
+      }).join('');
+    }
+    box.appendChild(items);
+    mainEl.appendChild(box);
+  });
+
+  document.getElementById('timerToggle').onclick=()=>{ withScrollPreserved(()=>{ state.running[s.id]=!state.running[s.id]; renderStudentTest(); }); };
+
+  if(s.id==='listening' && !testFinishedFlag){
+    const input=document.getElementById('audioFile'), player=document.getElementById('player');
+    if(input) input.addEventListener('change', e=>{ const f=e.target.files[0]; if(!f) return; player.src=URL.createObjectURL(f); player.style.display='block'; });
+  }
+
+  if(!testFinishedFlag){
+    mainEl.querySelectorAll('.choice').forEach(b=>{
+      b.onclick=()=>{ withScrollPreserved(()=>{ setAns(b.dataset.t,+b.dataset.i,b.dataset.v); saveProgress(); renderStudentTest(); }); };
+    });
+    mainEl.querySelectorAll('.txtin').forEach(inp=>{ inp.oninput=()=>{ setAns(inp.dataset.t,+inp.dataset.i,inp.value); saveProgress(); }; });
+    mainEl.querySelectorAll('.matchsel').forEach(sel=>{
+      sel.onchange=()=>{ withScrollPreserved(()=>{ setAns(sel.dataset.t,+sel.dataset.i,sel.value); saveProgress(); renderStudentTest(); }); };
+    });
+  }
+}
+
+let saveProgressTimer = null;
+function saveProgress(){
+  clearTimeout(saveProgressTimer);
+  saveProgressTimer = setTimeout(()=>{
+    sbStudentSaveProgress(state.currentAttemptId, cache.student.id, testAnswers, state.writingFileName);
+  }, 500);
+}
+
+function confirmFinish(){
+  const banner=document.getElementById('resultsBanner');
+  banner.style.display='block';
+  banner.innerHTML=`Завершить тест сейчас? Изменить ответы после этого будет нельзя.
+    <button id="confirmYes" class="btn" style="margin-left:10px; border-color:#fff; color:#fff;">Да, завершить</button>
+    <button id="confirmNo" class="btn" style="margin-left:6px; border-color:#fff; color:#fff;">Отмена</button>`;
+  document.getElementById('confirmYes').onclick=async ()=>{
+    await sbStudentFinish(state.currentAttemptId, cache.student.id, testAnswers);
+    testFinishedFlag = true;
+    renderStudentTest();
+  };
+  document.getElementById('confirmNo').onclick=()=>{ banner.style.display='none'; };
+}
+
+function renderStudentResults(att){
+  const SECTIONS = getSections(att.examId);
+  document.getElementById('pageTitle').textContent='PJP C1 — результаты';
+  headerControlsEl.innerHTML = `<button class="btn" id="backBtn">← к тестам</button>`;
+  document.getElementById('backBtn').onclick=()=>{ state.screen='studentDash'; render(); };
+
+  let html = `<div class="page">`;
+  if(att.comment) html += `<div class="banner" style="display:block;">Комментарий репетитора: <i>${esc(att.comment)}</i></div>`;
+
+  let totalOk=0, totalAll=0;
+  SECTIONS.forEach(s=>{ const r=sectionMarkScore(att,s); totalOk+=r.ok; totalAll+=r.total; });
+  html += `<div class="tutor-score" style="margin-top:16px;"><span>Итого баллов</span><b>${totalOk} / ${totalAll}</b></div>`;
+
+  SECTIONS.forEach(s=>{
+    if(!s.tasks.length) return;
+    const secScore = sectionMarkScore(att, s);
+    html += `<h3 style="font-weight:400; border-bottom:1px solid var(--paper-line); padding-bottom:6px; display:flex; justify-content:space-between;"><span>${s.label}</span><span style="font-family:var(--mono); font-size:12px; color:var(--ink-soft);">${secScore.ok} / ${secScore.total}</span></h3>`;
+    s.tasks.forEach(task=>{
+      const tscore = taskMarkScore(att, task);
+      html += `<div class="task"><div class="task-title"><span>${task.title}</span><span class="tscore">${tscore.ok} / ${tscore.total}</span></div><div class="items">`;
+      const n = task.n || (task.letters?task.letters.length:0);
+      for(let i=0;i<n;i++){
+        const val = (att.answers[task.id]||{})[i];
+        const mark = (att.marks||{})[task.id+':'+i];
+        const label = task.letters ? task.letters[i] : (i+1);
+        const cls = mark==='ok' ? 'ok' : (mark==='bad' ? 'bad' : '');
+        const markIcon = mark==='ok' ? '✓' : (mark==='bad' ? '✗' : '·');
+        html += `<div class="item"><span class="qn">${label}.</span><span class="ro-answer ${cls}">${val!=null && val!=='' ? esc(val) : '—'}</span><span class="ro-mark ${cls}">${markIcon}</span></div>`;
+      }
+      html += `</div></div>`;
+    });
+  });
+  html += `</div>`;
+  appEl.innerHTML = html;
+}
+
+function render(){
+  if(state.screen==='auth') renderAuth();
+  else if(state.screen==='tutorRegister') renderTutorRegister();
+  else if(state.screen==='tutorDash') renderTutorDash();
+  else if(state.screen==='addStudent') renderAddStudent();
+  else if(state.screen==='tutorReview') renderTutorReview();
+  else if(state.screen==='studentDash') renderStudentDash();
+  else if(state.screen==='studentTest'){
+    const att = cache.studentAttempts.find(a=>a.id===state.currentAttemptId);
+    if(att && att.released){ renderStudentResults(att); }
+    else { renderStudentTest(); }
+  }
+}
+
+boot();
+</script>
+</body>
+</html>
