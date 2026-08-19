@@ -106,6 +106,7 @@
   .comment-box textarea{width:100%; min-height:70px; font-family:var(--serif); font-size:13.5px; border:1px solid var(--paper-line); padding:8px; margin-top:6px;}
 </style>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4"></script>
 </head>
 <body>
 
@@ -1663,48 +1664,48 @@ const EXAM_META = {
   'B2-2019': { level:'B2', label:'B2 · wrzesień 2019', examUrl:'https://certyfikatpolski.pl/wp-content/uploads/2019/09/B2_test.pdf', keyUrl:'https://certyfikatpolski.pl/wp-content/uploads/2019/09/B2_klucz.pdf' },
   'B2-2017': { level:'B2', label:'B2 · marzec 2017', examUrl:'https://certyfikatpolski.pl/wp-content/uploads/2017/03/5_B2_test.pdf', keyUrl:'https://certyfikatpolski.pl/wp-content/uploads/2017/03/5_B2_tr-klucz.pdf' },
   '2022-03': { level:'C1', label:'C1 · marzec 2022', examUrl:'https://certyfikatpolski.pl/wp-content/uploads/2026/01/2022.03.26-27_C1_Arkusz_egzaminacyjny.pdf', keyUrl:'https://certyfikatpolski.pl/wp-content/uploads/2026/01/2022.03.26-27_C1_Transkrypcja_nagran.pdf' },
-  '2023-04': { level:'C1', label:'C1 · kwiecień 2023', examUrl:'https://certyfikatpolski.pl/wp-content/uploads/2025/07/2023_04_15_16_C1_arkusz_egzaminacyjny.pdf', keyUrl:'https://certyfikatpolski.pl/wp-content/uploads/2025/07/2023_04_15_16_C1_transkrypcja.pdf' },
-  '2023-11': { level:'C1', label:'C1 · listopad 2023', examUrl:'https://certyfikatpolski.pl/wp-content/uploads/2025/07/2023_11_18_19_C1_arkusz_egzaminacyjny.pdf', keyUrl:'https://certyfikatpolski.pl/wp-content/uploads/2025/07/2023_11_18_19_C1_transkrypcja.pdf' },
-  '2024-04': { level:'C1', label:'C1 · kwiecień 2024', examUrl:'https://certyfikatpolski.pl/wp-content/uploads/2025/02/20-21.04.2024-C1_arkusz_egzaminacyjny.pdf', keyUrl:'https://certyfikatpolski.pl/wp-content/uploads/2025/02/20-21.04.2024-C1_transkrypcja.pdf' },
-  'B1-2020': { level:'B1', label:'B1 · marzec 2020', examUrl:'https://certyfikatpolski.pl/wp-content/uploads/2020/12/B1_przykladowy_test_2020_03.pdf', keyUrl:'https://certyfikatpolski.pl/wp-content/uploads/2020/12/B1_przykladowy_transkrypcje_i_klucz_2020_03.pdf' },
-  'B1-2019': { level:'B1', label:'B1 · wrzesień 2019', examUrl:'https://certyfikatpolski.pl/wp-content/uploads/2019/09/B1_test.pdf', keyUrl:'https://certyfikatpolski.pl/wp-content/uploads/2019/09/B1_klucz.pdf' },
-  'B1-2017': { level:'B1', label:'B1 · maj 2017', examUrl:'https://certyfikatpolski.pl/wp-content/uploads/2017/05/5_B1_test.pdf', keyUrl:'https://certyfikatpolski.pl/wp-content/uploads/2017/03/5_B1_tr-klucz.pdf' },
-  'B1-DM-2017': { level:'B1', label:'B1 dla dzieci i młodzieży · 2017', examUrl:'https://certyfikatpolski.pl/wp-content/uploads/2017/03/B1_DM_test-przykladowy.pdf', keyUrl:'https://certyfikatpolski.pl/wp-content/uploads/2017/03/B1_DM_TRANS-KLUCZ_test-przykladowy.pdf' },
-  'B1-DM-2019': { level:'B1', label:'B1 dla dzieci i młodzieży · 2019', examUrl:'https://certyfikatpolski.pl/wp-content/uploads/2019/11/B1_test2_test.pdf', keyUrl:'https://certyfikatpolski.pl/wp-content/uploads/2019/11/B1_test2_klucz.pdf' },
-  'B2-DM-2018': { level:'B2', label:'B2 dla dzieci i młodzieży · 2018', examUrl:'https://certyfikatpolski.pl/wp-content/uploads/2018/04/B2_DiM-test-przyk%C5%82adowy_-scalony-27.04-do-publikacji1.pdf', keyUrl:'https://certyfikatpolski.pl/wp-content/uploads/2018/04/B2_DiM_TRANS_KLUCZ-test-przyk%C5%82adowy-do-publikacji1.pdf' },
-  'A2': { level:'A2', label:'A2', examUrl:'https://certyfikatpolski.pl/wp-content/uploads/2018/10/t_a2.pdf', keyUrl:'https://certyfikatpolski.pl/wp-content/uploads/2018/10/tr_klucz_a2.pdf' },
-  'B2-2024-02': { level:'B2', label:'B2 · luty 2024', examUrl:'https://certyfikatpolski.pl/wp-content/uploads/2025/02/4-5.02.2024-B2_arkusz_egzaminacyjny.pdf', keyUrl:'https://certyfikatpolski.pl/wp-content/uploads/2025/02/4-5.02.2024-B2_transkrypcja.pdf' },
-  'B1-2024-02': { level:'B1', label:'B1 · luty 2024', examUrl:'https://certyfikatpolski.pl/wp-content/uploads/2025/02/4-5.02.2024-B1_arkusz_egzaminacyjny.pdf', keyUrl:'https://certyfikatpolski.pl/wp-content/uploads/2025/02/4-5.02.2024-B1_transkrypcja.pdf' },
-  'B1-2024-04': { level:'B1', label:'B1 · kwiecień 2024', examUrl:'https://certyfikatpolski.pl/wp-content/uploads/2025/02/20-21.04.2024-B1_arkusz_egzaminacyjny.pdf', keyUrl:'https://certyfikatpolski.pl/wp-content/uploads/2025/02/20-21.04.2024-B1_transkrypcja.pdf' },
-  'B1-2024-06': { level:'B1', label:'B1 · czerwiec 2024', examUrl:'https://certyfikatpolski.pl/wp-content/uploads/2025/02/22-23.06.2024-B1_arkusz_egzaminacyjny.pdf', keyUrl:'https://certyfikatpolski.pl/wp-content/uploads/2025/02/22-23.06.2024-B1_transkrypcja.pdf' },
-  'B1-DM-2024-06': { level:'B1', label:'B1 dla dzieci i młodzieży · czerwiec 2024', examUrl:'https://certyfikatpolski.pl/wp-content/uploads/2025/02/22-23.06.2024-B1-DIM_arkusz_egzaminacyjny.pdf', keyUrl:'https://certyfikatpolski.pl/wp-content/uploads/2025/02/22-23.06.2024-B1-DIM_transkrypcja.pdf' },
-  'B2-2024-06': { level:'B2', label:'B2 · czerwiec 2024', examUrl:'https://certyfikatpolski.pl/wp-content/uploads/2025/02/22-23.06.2024-B2_arkusz_egzaminacyjny.pdf', keyUrl:'https://certyfikatpolski.pl/wp-content/uploads/2025/02/22-23.06.2024-B2_transkrypcja.pdf' },
-  'B2-DM-2024-06': { level:'B2', label:'B2 dla dzieci i młodzieży · czerwiec 2024', examUrl:'https://certyfikatpolski.pl/wp-content/uploads/2025/02/22-23.06.2024-B2-DIM_arkusz_egzaminacyjny.pdf', keyUrl:'https://certyfikatpolski.pl/wp-content/uploads/2025/02/22-23.06.2024-B2-DIM_transkrypcja.pdf' },
-  'B1-2023-02': { level:'B1', label:'B1 · luty 2023', examUrl:'https://certyfikatpolski.pl/wp-content/uploads/2025/07/2023_02_5_6_B1_arkusz_egzaminacyjny.pdf', keyUrl:'https://certyfikatpolski.pl/wp-content/uploads/2025/07/2023_02_5_6_B1_transkrypcja.pdf' },
-  'B2-2023-02': { level:'B2', label:'B2 · luty 2023', examUrl:'https://certyfikatpolski.pl/wp-content/uploads/2025/07/2023_02_5_6_B2_arkusz_egzaminacyjny.pdf', keyUrl:'https://certyfikatpolski.pl/wp-content/uploads/2025/07/2023_02_5_6_B2_transkrypcja.pdf' },
-  'B1-2023-04': { level:'B1', label:'B1 · kwiecień 2023', examUrl:'https://certyfikatpolski.pl/wp-content/uploads/2025/07/2023_04_15_16_B1_arkusz_egzaminacyjny.pdf', keyUrl:'https://certyfikatpolski.pl/wp-content/uploads/2025/07/2023_04_15_16_B1_transkrypcja.pdf' },
-  'B1-2023-06': { level:'B1', label:'B1 · czerwiec 2023', examUrl:'https://certyfikatpolski.pl/wp-content/uploads/2025/07/2023_06_24_25_B1_arkusz_egzaminacyjny.pdf', keyUrl:'https://certyfikatpolski.pl/wp-content/uploads/2025/07/2023_06_24_25_B1_transkrypcja.pdf' },
-  'B1-DM-2023-06': { level:'B1', label:'B1 dla dzieci i młodzieży · czerwiec 2023', examUrl:'https://certyfikatpolski.pl/wp-content/uploads/2025/07/2023_06_24_25_B1-DiM_arkusz_egzaminacyjny.pdf', keyUrl:'https://certyfikatpolski.pl/wp-content/uploads/2025/07/2023_06_24_25_B1-DiM_transkrypcja.pdf' },
-  'B2-2023-06': { level:'B2', label:'B2 · czerwiec 2023', examUrl:'https://certyfikatpolski.pl/wp-content/uploads/2025/07/2023_06_24_25_B2_arkusz_egzaminacyjny.pdf', keyUrl:'https://certyfikatpolski.pl/wp-content/uploads/2025/07/2023_06_24_25_B2_transkrypcja.pdf.pdf' },
-  'B2-DM-2023-06': { level:'B2', label:'B2 dla dzieci i młodzieży · czerwiec 2023', examUrl:'https://certyfikatpolski.pl/wp-content/uploads/2025/07/2023_06_24_25_B2-DiM_arkusz_egzaminacyjny.pdf', keyUrl:'https://certyfikatpolski.pl/wp-content/uploads/2025/07/2023_06_24_25_B2-DiM_transkrypcja.pdf' },
-  'B1-2023-11': { level:'B1', label:'B1 · listopad 2023', examUrl:'https://certyfikatpolski.pl/wp-content/uploads/2025/07/2023_11_18_19_B1_arkusz_egzaminacyjny.pdf', keyUrl:'https://certyfikatpolski.pl/wp-content/uploads/2025/07/2023_11_18_19_B1_transkrypcja.pdf' },
-  'B1-2022-02': { level:'B1', label:'B1 · luty 2022', examUrl:'https://certyfikatpolski.pl/wp-content/uploads/2026/01/2022.02.6-7_B1_Arkusz_egzaminacyjny.pdf', keyUrl:'https://certyfikatpolski.pl/wp-content/uploads/2026/01/2022.02.6-7_B1_Transkrypcja_nagran.pdf' },
-  'B2-2022-02': { level:'B2', label:'B2 · luty 2022', examUrl:'https://certyfikatpolski.pl/wp-content/uploads/2026/01/2022.02.6-7_B2_Arkusz_egzaminacyjny.pdf', keyUrl:'https://certyfikatpolski.pl/wp-content/uploads/2026/01/2022.02.6-7_B2_Transkrypcja_nagran.pdf' },
-  'B1-2022-03': { level:'B1', label:'B1 · marzec 2022', examUrl:'https://certyfikatpolski.pl/wp-content/uploads/2026/01/2022.03.26-27_B1_Arkusz_egzaminacyjny.pdf', keyUrl:'https://certyfikatpolski.pl/wp-content/uploads/2026/01/2022.03.26-27_B1_Transkrypcja_nagran.pdf' },
-  'B1-DM-2022-03': { level:'B1', label:'B1 dla dzieci i młodzieży · marzec 2022', examUrl:'https://certyfikatpolski.pl/wp-content/uploads/2026/01/2022.03.26-27_B1_DIM_Arkusz_egzaminacyjny.pdf', keyUrl:'https://certyfikatpolski.pl/wp-content/uploads/2026/01/2022.03.26-27_B1_DIM_Transkrypcja_nagran.pdf' },
-  'B1-2022-06': { level:'B1', label:'B1 · czerwiec 2022', examUrl:'https://certyfikatpolski.pl/wp-content/uploads/2026/01/2022.06.25-26_B1_Arkusz_egzaminacyjny.pdf', keyUrl:'https://certyfikatpolski.pl/wp-content/uploads/2026/01/2022.06.25-26_B1_Transkrypcja_nagran.pdf' },
-  'B1-DM-2022-06': { level:'B1', label:'B1 dla dzieci i młodzieży · czerwiec 2022', examUrl:'https://certyfikatpolski.pl/wp-content/uploads/2026/01/2022.06.25-26_B1_DIM_Arkusz_egzaminacyjny.pdf', keyUrl:'https://certyfikatpolski.pl/wp-content/uploads/2026/01/2022.06.25-26_B1_DIM_Transkrypcja_nagran.pdf' },
-  'B2-2022-06': { level:'B2', label:'B2 · czerwiec 2022', examUrl:'https://certyfikatpolski.pl/wp-content/uploads/2026/01/2022.06.25-26_B2_Arkusz_egzaminacyjny.pdf', keyUrl:'https://certyfikatpolski.pl/wp-content/uploads/2026/01/2022.06.25-26_B2_Transkrypcja_nagran.pdf' },
-  'B2-DM-2022-06': { level:'B2', label:'B2 dla dzieci i młodzieży · czerwiec 2022', examUrl:'https://certyfikatpolski.pl/wp-content/uploads/2026/01/2022.06.25-26_B2_DIM_Arkusz_egzaminacyjny.pdf', keyUrl:'https://certyfikatpolski.pl/wp-content/uploads/2026/01/2022.06.25-26_B2_DIM_Transkrypcja_nagran.pdf' },
-  'B1-2022-11': { level:'B1', label:'B1 · listopad 2022', examUrl:'https://certyfikatpolski.pl/wp-content/uploads/2026/01/2022.11.5-6_B1_Arkusz_egzaminacyjny.pdf', keyUrl:'https://certyfikatpolski.pl/wp-content/uploads/2026/01/2022.11.5-6_B1_Transkrypcja_nagran.pdf' },
-  'B1-2021-01': { level:'B1', label:'B1 · styczeń 2021', examUrl:'https://certyfikatpolski.pl/wp-content/uploads/2026/07/2021.01.30-31_B1_Arkusz_egzaminacyjny.pdf', keyUrl:'https://certyfikatpolski.pl/wp-content/uploads/2026/07/2021.01.30-31_B1_Transkrypcja_nagran.pdf' },
-  'B1-2021-05': { level:'B1', label:'B1 · maj 2021', examUrl:'https://certyfikatpolski.pl/wp-content/uploads/2026/07/2021.05.8-9_B1_Arkusz_egzaminacyjny.pdf', keyUrl:'https://certyfikatpolski.pl/wp-content/uploads/2026/07/2021.05.8-9_B1_Transkrypcja_nagran.pdf' },
-  'B2-2021-05': { level:'B2', label:'B2 · maj 2021', examUrl:'https://certyfikatpolski.pl/wp-content/uploads/2026/07/2021.05.8-9_B2_Arkusz_egzaminacyjny.pdf', keyUrl:'https://certyfikatpolski.pl/wp-content/uploads/2026/07/2021.05.8-9_B2_Transkrypcja_nagran.pdf' },
-  'B2-DM-2021-05': { level:'B2', label:'B2 dla dzieci i młodzieży · maj 2021', examUrl:'https://certyfikatpolski.pl/wp-content/uploads/2026/07/2021.05.8-9_B2_DiM_Arkusz_egzaminacyjny.pdf', keyUrl:'https://certyfikatpolski.pl/wp-content/uploads/2026/07/2021.05.8-9_B2_DiM_Transkrypcja_nagran.pdf' },
-  'B1-2021-06': { level:'B1', label:'B1 · czerwiec 2021', examUrl:'https://certyfikatpolski.pl/wp-content/uploads/2026/07/2021.06.19-20_B1_Arkusz_egzaminacyjny.pdf', keyUrl:'https://certyfikatpolski.pl/wp-content/uploads/2026/07/2021.06.19-20_B1_Transkrypcja_nagran.pdf' },
-  'B1-DM-2021-06': { level:'B1', label:'B1 dla dzieci i młodzieży · czerwiec 2021', examUrl:'https://certyfikatpolski.pl/wp-content/uploads/2026/07/2021.06.19-20_B1_DiM_Arkusz_egzaminacyjny.pdf', keyUrl:'https://certyfikatpolski.pl/wp-content/uploads/2026/07/2021.06.19-20_B1_DiM_Transkrypcja_nagran.pdf' },
-  'B2-2021-06': { level:'B2', label:'B2 · czerwiec 2021', examUrl:'https://certyfikatpolski.pl/wp-content/uploads/2026/07/2021.06.19-20_B2_Arkusz_egzaminacyjny.pdf', keyUrl:'https://certyfikatpolski.pl/wp-content/uploads/2026/07/2021.06.19-20_B2_Transkrypcja_nagran.pdf' },
-  'B2-DM-2021-06': { level:'B2', label:'B2 dla dzieci i młodzieży · czerwiec 2021', examUrl:'https://certyfikatpolski.pl/wp-content/uploads/2026/07/2021.06.19-20_B2_DiM_Arkusz_egzaminacyjny.pdf', keyUrl:'https://certyfikatpolski.pl/wp-content/uploads/2026/07/2021.06.19-20_B2_DiM_Transkrypcja_nagran.pdf' },
+  '2023-04': { level:'C1', audioUrl:'https://certyfikatpolski.pl/wp-content/uploads/2025/07/2023_04_15_16_C1_plik_dzwiekowy.mp3', label:'C1 · kwiecień 2023', examUrl:'https://certyfikatpolski.pl/wp-content/uploads/2025/07/2023_04_15_16_C1_arkusz_egzaminacyjny.pdf', keyUrl:'https://certyfikatpolski.pl/wp-content/uploads/2025/07/2023_04_15_16_C1_transkrypcja.pdf' },
+  '2023-11': { level:'C1', audioUrl:'https://certyfikatpolski.pl/wp-content/uploads/2025/07/2023_11_18_19_C1_plik_dzwiekowy.mp3', label:'C1 · listopad 2023', examUrl:'https://certyfikatpolski.pl/wp-content/uploads/2025/07/2023_11_18_19_C1_arkusz_egzaminacyjny.pdf', keyUrl:'https://certyfikatpolski.pl/wp-content/uploads/2025/07/2023_11_18_19_C1_transkrypcja.pdf' },
+  '2024-04': { level:'C1', audioUrl:'https://certyfikatpolski.pl/wp-content/uploads/2025/02/20-21.04.2024-C1_plik_dzwiekowy.mp3', label:'C1 · kwiecień 2024', examUrl:'https://certyfikatpolski.pl/wp-content/uploads/2025/02/20-21.04.2024-C1_arkusz_egzaminacyjny.pdf', keyUrl:'https://certyfikatpolski.pl/wp-content/uploads/2025/02/20-21.04.2024-C1_transkrypcja.pdf' },
+  'B1-2020': { level:'B1', audioUrl:'https://certyfikatpolski.pl/wp-content/uploads/2020/12/B1_2020_03.mp3', label:'B1 · marzec 2020', examUrl:'https://certyfikatpolski.pl/wp-content/uploads/2020/12/B1_przykladowy_test_2020_03.pdf', keyUrl:'https://certyfikatpolski.pl/wp-content/uploads/2020/12/B1_przykladowy_transkrypcje_i_klucz_2020_03.pdf' },
+  'B1-2019': { level:'B1', audioUrl:'https://certyfikatpolski.pl/wp-content/uploads/2019/09/B1_audio.mp3', label:'B1 · wrzesień 2019', examUrl:'https://certyfikatpolski.pl/wp-content/uploads/2019/09/B1_test.pdf', keyUrl:'https://certyfikatpolski.pl/wp-content/uploads/2019/09/B1_klucz.pdf' },
+  'B1-2017': { level:'B1', audioUrl:'https://certyfikatpolski.pl/wp-content/uploads/2017/03/Egzamin-Przyk%C5%82adowy-B1-gru2016.mp3', label:'B1 · maj 2017', examUrl:'https://certyfikatpolski.pl/wp-content/uploads/2017/05/5_B1_test.pdf', keyUrl:'https://certyfikatpolski.pl/wp-content/uploads/2017/03/5_B1_tr-klucz.pdf' },
+  'B1-DM-2017': { level:'B1', audioUrl:'https://certyfikatpolski.pl/wp-content/uploads/2017/03/Egzaminy-kwiecie%C5%84-PL-B1-m%C5%82odzie%C5%BC-PRZYK%C5%81ADOWY.mp3', label:'B1 dla dzieci i młodzieży · 2017', examUrl:'https://certyfikatpolski.pl/wp-content/uploads/2017/03/B1_DM_test-przykladowy.pdf', keyUrl:'https://certyfikatpolski.pl/wp-content/uploads/2017/03/B1_DM_TRANS-KLUCZ_test-przykladowy.pdf' },
+  'B1-DM-2019': { level:'B1', audioUrl:'https://certyfikatpolski.pl/wp-content/uploads/2019/11/B1_test2_audio.mp3', label:'B1 dla dzieci i młodzieży · 2019', examUrl:'https://certyfikatpolski.pl/wp-content/uploads/2019/11/B1_test2_test.pdf', keyUrl:'https://certyfikatpolski.pl/wp-content/uploads/2019/11/B1_test2_klucz.pdf' },
+  'B2-DM-2018': { level:'B2', audioUrl:'https://certyfikatpolski.pl/wp-content/uploads/2018/04/Egzaminy-B2DM-przyk%C5%82adowy-24_04_20181.mp3', label:'B2 dla dzieci i młodzieży · 2018', examUrl:'https://certyfikatpolski.pl/wp-content/uploads/2018/04/B2_DiM-test-przyk%C5%82adowy_-scalony-27.04-do-publikacji1.pdf', keyUrl:'https://certyfikatpolski.pl/wp-content/uploads/2018/04/B2_DiM_TRANS_KLUCZ-test-przyk%C5%82adowy-do-publikacji1.pdf' },
+  'A2': { level:'A2', audioUrl:'https://certyfikatpolski.pl/wp-content/uploads/2018/10/A2_przyklad.mp3', label:'A2', examUrl:'https://certyfikatpolski.pl/wp-content/uploads/2018/10/t_a2.pdf', keyUrl:'https://certyfikatpolski.pl/wp-content/uploads/2018/10/tr_klucz_a2.pdf' },
+  'B2-2024-02': { level:'B2', audioUrl:'https://certyfikatpolski.pl/wp-content/uploads/2025/02/4-5.02.2024-B2_plik_dzwiekowy.mp3', label:'B2 · luty 2024', examUrl:'https://certyfikatpolski.pl/wp-content/uploads/2025/02/4-5.02.2024-B2_arkusz_egzaminacyjny.pdf', keyUrl:'https://certyfikatpolski.pl/wp-content/uploads/2025/02/4-5.02.2024-B2_transkrypcja.pdf' },
+  'B1-2024-02': { level:'B1', audioUrl:'https://certyfikatpolski.pl/wp-content/uploads/2025/02/4-5.02.2024-B1_plik_dzwiekowy.mp3', label:'B1 · luty 2024', examUrl:'https://certyfikatpolski.pl/wp-content/uploads/2025/02/4-5.02.2024-B1_arkusz_egzaminacyjny.pdf', keyUrl:'https://certyfikatpolski.pl/wp-content/uploads/2025/02/4-5.02.2024-B1_transkrypcja.pdf' },
+  'B1-2024-04': { level:'B1', audioUrl:'https://certyfikatpolski.pl/wp-content/uploads/2025/02/20-21.04.2024-B1_plik_dzwiekowy.mp3', label:'B1 · kwiecień 2024', examUrl:'https://certyfikatpolski.pl/wp-content/uploads/2025/02/20-21.04.2024-B1_arkusz_egzaminacyjny.pdf', keyUrl:'https://certyfikatpolski.pl/wp-content/uploads/2025/02/20-21.04.2024-B1_transkrypcja.pdf' },
+  'B1-2024-06': { level:'B1', audioUrl:'https://certyfikatpolski.pl/wp-content/uploads/2025/02/22-23.06.2024-B1_pilk_dzwiekowy.mp3', label:'B1 · czerwiec 2024', examUrl:'https://certyfikatpolski.pl/wp-content/uploads/2025/02/22-23.06.2024-B1_arkusz_egzaminacyjny.pdf', keyUrl:'https://certyfikatpolski.pl/wp-content/uploads/2025/02/22-23.06.2024-B1_transkrypcja.pdf' },
+  'B1-DM-2024-06': { level:'B1', audioUrl:'https://certyfikatpolski.pl/wp-content/uploads/2025/02/22-23.06.2024-B1-DIM_plik_dzwiekowy.mp3', label:'B1 dla dzieci i młodzieży · czerwiec 2024', examUrl:'https://certyfikatpolski.pl/wp-content/uploads/2025/02/22-23.06.2024-B1-DIM_arkusz_egzaminacyjny.pdf', keyUrl:'https://certyfikatpolski.pl/wp-content/uploads/2025/02/22-23.06.2024-B1-DIM_transkrypcja.pdf' },
+  'B2-2024-06': { level:'B2', audioUrl:'https://certyfikatpolski.pl/wp-content/uploads/2025/02/22-23.06.2024-B2_plik_dzwiekowy.mp3', label:'B2 · czerwiec 2024', examUrl:'https://certyfikatpolski.pl/wp-content/uploads/2025/02/22-23.06.2024-B2_arkusz_egzaminacyjny.pdf', keyUrl:'https://certyfikatpolski.pl/wp-content/uploads/2025/02/22-23.06.2024-B2_transkrypcja.pdf' },
+  'B2-DM-2024-06': { level:'B2', audioUrl:'https://certyfikatpolski.pl/wp-content/uploads/2025/02/22-23.06.2024-B2-DIM_plik_dzwiekowy.mp3', label:'B2 dla dzieci i młodzieży · czerwiec 2024', examUrl:'https://certyfikatpolski.pl/wp-content/uploads/2025/02/22-23.06.2024-B2-DIM_arkusz_egzaminacyjny.pdf', keyUrl:'https://certyfikatpolski.pl/wp-content/uploads/2025/02/22-23.06.2024-B2-DIM_transkrypcja.pdf' },
+  'B1-2023-02': { level:'B1', audioUrl:'https://certyfikatpolski.pl/wp-content/uploads/2025/07/2023_02_5_6_B1_plik_dzwiekowy.mp3', label:'B1 · luty 2023', examUrl:'https://certyfikatpolski.pl/wp-content/uploads/2025/07/2023_02_5_6_B1_arkusz_egzaminacyjny.pdf', keyUrl:'https://certyfikatpolski.pl/wp-content/uploads/2025/07/2023_02_5_6_B1_transkrypcja.pdf' },
+  'B2-2023-02': { level:'B2', audioUrl:'https://certyfikatpolski.pl/wp-content/uploads/2025/07/2023_02_5_6_B2_plik_dzwiekowy.mp3.mp3', label:'B2 · luty 2023', examUrl:'https://certyfikatpolski.pl/wp-content/uploads/2025/07/2023_02_5_6_B2_arkusz_egzaminacyjny.pdf', keyUrl:'https://certyfikatpolski.pl/wp-content/uploads/2025/07/2023_02_5_6_B2_transkrypcja.pdf' },
+  'B1-2023-04': { level:'B1', audioUrl:'https://certyfikatpolski.pl/wp-content/uploads/2025/07/2023_04_15_16_B1_plik_dzwiekowy.mp3.mp3', label:'B1 · kwiecień 2023', examUrl:'https://certyfikatpolski.pl/wp-content/uploads/2025/07/2023_04_15_16_B1_arkusz_egzaminacyjny.pdf', keyUrl:'https://certyfikatpolski.pl/wp-content/uploads/2025/07/2023_04_15_16_B1_transkrypcja.pdf' },
+  'B1-2023-06': { level:'B1', audioUrl:'https://certyfikatpolski.pl/wp-content/uploads/2025/07/2023_06_24_25_B1_plik_dzwiekowy_v2.mp3', label:'B1 · czerwiec 2023', examUrl:'https://certyfikatpolski.pl/wp-content/uploads/2025/07/2023_06_24_25_B1_arkusz_egzaminacyjny.pdf', keyUrl:'https://certyfikatpolski.pl/wp-content/uploads/2025/07/2023_06_24_25_B1_transkrypcja.pdf' },
+  'B1-DM-2023-06': { level:'B1', audioUrl:'https://certyfikatpolski.pl/wp-content/uploads/2025/07/2023_06_24_25_B1-DiM_plik_dzwiekowy.mp3', label:'B1 dla dzieci i młodzieży · czerwiec 2023', examUrl:'https://certyfikatpolski.pl/wp-content/uploads/2025/07/2023_06_24_25_B1-DiM_arkusz_egzaminacyjny.pdf', keyUrl:'https://certyfikatpolski.pl/wp-content/uploads/2025/07/2023_06_24_25_B1-DiM_transkrypcja.pdf' },
+  'B2-2023-06': { level:'B2', audioUrl:'https://certyfikatpolski.pl/wp-content/uploads/2025/07/2023_06_24_25_B2_plik_dzwiekowy.mp3', label:'B2 · czerwiec 2023', examUrl:'https://certyfikatpolski.pl/wp-content/uploads/2025/07/2023_06_24_25_B2_arkusz_egzaminacyjny.pdf', keyUrl:'https://certyfikatpolski.pl/wp-content/uploads/2025/07/2023_06_24_25_B2_transkrypcja.pdf.pdf' },
+  'B2-DM-2023-06': { level:'B2', audioUrl:'https://certyfikatpolski.pl/wp-content/uploads/2025/07/2023_06_24_25_B2-DiM_plik_dzwiekowy.mp3', label:'B2 dla dzieci i młodzieży · czerwiec 2023', examUrl:'https://certyfikatpolski.pl/wp-content/uploads/2025/07/2023_06_24_25_B2-DiM_arkusz_egzaminacyjny.pdf', keyUrl:'https://certyfikatpolski.pl/wp-content/uploads/2025/07/2023_06_24_25_B2-DiM_transkrypcja.pdf' },
+  'B1-2023-11': { level:'B1', audioUrl:'https://certyfikatpolski.pl/wp-content/uploads/2025/07/2023_11_18_19_B1_plik_dzwiekowy.mp3', label:'B1 · listopad 2023', examUrl:'https://certyfikatpolski.pl/wp-content/uploads/2025/07/2023_11_18_19_B1_arkusz_egzaminacyjny.pdf', keyUrl:'https://certyfikatpolski.pl/wp-content/uploads/2025/07/2023_11_18_19_B1_transkrypcja.pdf' },
+  'B1-2022-02': { level:'B1', audioUrl:'https://certyfikatpolski.pl/wp-content/uploads/2026/01/2022.02.6-7_B1_Plik_dzwiekowy.mp3', label:'B1 · luty 2022', examUrl:'https://certyfikatpolski.pl/wp-content/uploads/2026/01/2022.02.6-7_B1_Arkusz_egzaminacyjny.pdf', keyUrl:'https://certyfikatpolski.pl/wp-content/uploads/2026/01/2022.02.6-7_B1_Transkrypcja_nagran.pdf' },
+  'B2-2022-02': { level:'B2', audioUrl:'https://certyfikatpolski.pl/wp-content/uploads/2026/01/2022.02.6-7_B2_Plik_dzwiekowy.mp3', label:'B2 · luty 2022', examUrl:'https://certyfikatpolski.pl/wp-content/uploads/2026/01/2022.02.6-7_B2_Arkusz_egzaminacyjny.pdf', keyUrl:'https://certyfikatpolski.pl/wp-content/uploads/2026/01/2022.02.6-7_B2_Transkrypcja_nagran.pdf' },
+  'B1-2022-03': { level:'B1', audioUrl:'https://certyfikatpolski.pl/wp-content/uploads/2026/01/2022.03.26-27_B1_Plik_dzwiekowy.mp3', label:'B1 · marzec 2022', examUrl:'https://certyfikatpolski.pl/wp-content/uploads/2026/01/2022.03.26-27_B1_Arkusz_egzaminacyjny.pdf', keyUrl:'https://certyfikatpolski.pl/wp-content/uploads/2026/01/2022.03.26-27_B1_Transkrypcja_nagran.pdf' },
+  'B1-DM-2022-03': { level:'B1', audioUrl:'https://certyfikatpolski.pl/wp-content/uploads/2026/01/2022.03.26-27_B1_DIM_Plik_dzwiekowy.mp3', label:'B1 dla dzieci i młodzieży · marzec 2022', examUrl:'https://certyfikatpolski.pl/wp-content/uploads/2026/01/2022.03.26-27_B1_DIM_Arkusz_egzaminacyjny.pdf', keyUrl:'https://certyfikatpolski.pl/wp-content/uploads/2026/01/2022.03.26-27_B1_DIM_Transkrypcja_nagran.pdf' },
+  'B1-2022-06': { level:'B1', audioUrl:'https://certyfikatpolski.pl/wp-content/uploads/2026/01/2022.06.25-26_B1_Plik_dzwiekowy.mp3', label:'B1 · czerwiec 2022', examUrl:'https://certyfikatpolski.pl/wp-content/uploads/2026/01/2022.06.25-26_B1_Arkusz_egzaminacyjny.pdf', keyUrl:'https://certyfikatpolski.pl/wp-content/uploads/2026/01/2022.06.25-26_B1_Transkrypcja_nagran.pdf' },
+  'B1-DM-2022-06': { level:'B1', audioUrl:'https://certyfikatpolski.pl/wp-content/uploads/2026/01/2022.06.25-26_B1_DIM_Plik_dzwiekowy.mp3', label:'B1 dla dzieci i młodzieży · czerwiec 2022', examUrl:'https://certyfikatpolski.pl/wp-content/uploads/2026/01/2022.06.25-26_B1_DIM_Arkusz_egzaminacyjny.pdf', keyUrl:'https://certyfikatpolski.pl/wp-content/uploads/2026/01/2022.06.25-26_B1_DIM_Transkrypcja_nagran.pdf' },
+  'B2-2022-06': { level:'B2', audioUrl:'https://certyfikatpolski.pl/wp-content/uploads/2026/01/2022.06.25-26_B2_Plik_dzwiekowy.mp3', label:'B2 · czerwiec 2022', examUrl:'https://certyfikatpolski.pl/wp-content/uploads/2026/01/2022.06.25-26_B2_Arkusz_egzaminacyjny.pdf', keyUrl:'https://certyfikatpolski.pl/wp-content/uploads/2026/01/2022.06.25-26_B2_Transkrypcja_nagran.pdf' },
+  'B2-DM-2022-06': { level:'B2', audioUrl:'https://certyfikatpolski.pl/wp-content/uploads/2026/01/2022.06.25-26_B2_DIM_Plik_dzwiekowy.mp3', label:'B2 dla dzieci i młodzieży · czerwiec 2022', examUrl:'https://certyfikatpolski.pl/wp-content/uploads/2026/01/2022.06.25-26_B2_DIM_Arkusz_egzaminacyjny.pdf', keyUrl:'https://certyfikatpolski.pl/wp-content/uploads/2026/01/2022.06.25-26_B2_DIM_Transkrypcja_nagran.pdf' },
+  'B1-2022-11': { level:'B1', audioUrl:'https://certyfikatpolski.pl/wp-content/uploads/2026/01/2022.11.5-6_B1_Plik_dzwiekowy.mp3', label:'B1 · listopad 2022', examUrl:'https://certyfikatpolski.pl/wp-content/uploads/2026/01/2022.11.5-6_B1_Arkusz_egzaminacyjny.pdf', keyUrl:'https://certyfikatpolski.pl/wp-content/uploads/2026/01/2022.11.5-6_B1_Transkrypcja_nagran.pdf' },
+  'B1-2021-01': { level:'B1', audioUrl:'https://certyfikatpolski.pl/wp-content/uploads/2026/07/2021.01.30-31_B1_Plik_dzwiekowy.mp3', label:'B1 · styczeń 2021', examUrl:'https://certyfikatpolski.pl/wp-content/uploads/2026/07/2021.01.30-31_B1_Arkusz_egzaminacyjny.pdf', keyUrl:'https://certyfikatpolski.pl/wp-content/uploads/2026/07/2021.01.30-31_B1_Transkrypcja_nagran.pdf' },
+  'B1-2021-05': { level:'B1', audioUrl:'https://certyfikatpolski.pl/wp-content/uploads/2026/07/2021.05.8-9_B1_Plik_dzwiekowy.mp3', label:'B1 · maj 2021', examUrl:'https://certyfikatpolski.pl/wp-content/uploads/2026/07/2021.05.8-9_B1_Arkusz_egzaminacyjny.pdf', keyUrl:'https://certyfikatpolski.pl/wp-content/uploads/2026/07/2021.05.8-9_B1_Transkrypcja_nagran.pdf' },
+  'B2-2021-05': { level:'B2', audioUrl:'https://certyfikatpolski.pl/wp-content/uploads/2026/07/2021.05.8-9_B2_Plik_dzwiekowy.mp3', label:'B2 · maj 2021', examUrl:'https://certyfikatpolski.pl/wp-content/uploads/2026/07/2021.05.8-9_B2_Arkusz_egzaminacyjny.pdf', keyUrl:'https://certyfikatpolski.pl/wp-content/uploads/2026/07/2021.05.8-9_B2_Transkrypcja_nagran.pdf' },
+  'B2-DM-2021-05': { level:'B2', audioUrl:'https://certyfikatpolski.pl/wp-content/uploads/2026/07/2021.05.8-9_B2_DiM_Plik_dzwiekowy.mp3', label:'B2 dla dzieci i młodzieży · maj 2021', examUrl:'https://certyfikatpolski.pl/wp-content/uploads/2026/07/2021.05.8-9_B2_DiM_Arkusz_egzaminacyjny.pdf', keyUrl:'https://certyfikatpolski.pl/wp-content/uploads/2026/07/2021.05.8-9_B2_DiM_Transkrypcja_nagran.pdf' },
+  'B1-2021-06': { level:'B1', audioUrl:'https://certyfikatpolski.pl/wp-content/uploads/2026/07/2021.06.19-20_B1_Plik_dzwiekowy.mp3', label:'B1 · czerwiec 2021', examUrl:'https://certyfikatpolski.pl/wp-content/uploads/2026/07/2021.06.19-20_B1_Arkusz_egzaminacyjny.pdf', keyUrl:'https://certyfikatpolski.pl/wp-content/uploads/2026/07/2021.06.19-20_B1_Transkrypcja_nagran.pdf' },
+  'B1-DM-2021-06': { level:'B1', audioUrl:'https://certyfikatpolski.pl/wp-content/uploads/2026/07/2021.06.19-20_B1_DiM_Plik_dzwiekowy.mp3', label:'B1 dla dzieci i młodzieży · czerwiec 2021', examUrl:'https://certyfikatpolski.pl/wp-content/uploads/2026/07/2021.06.19-20_B1_DiM_Arkusz_egzaminacyjny.pdf', keyUrl:'https://certyfikatpolski.pl/wp-content/uploads/2026/07/2021.06.19-20_B1_DiM_Transkrypcja_nagran.pdf' },
+  'B2-2021-06': { level:'B2', audioUrl:'https://certyfikatpolski.pl/wp-content/uploads/2026/07/2021.06.19-20_B2_Plik_dzwiekowy.mp3', label:'B2 · czerwiec 2021', examUrl:'https://certyfikatpolski.pl/wp-content/uploads/2026/07/2021.06.19-20_B2_Arkusz_egzaminacyjny.pdf', keyUrl:'https://certyfikatpolski.pl/wp-content/uploads/2026/07/2021.06.19-20_B2_Transkrypcja_nagran.pdf' },
+  'B2-DM-2021-06': { level:'B2', audioUrl:'https://certyfikatpolski.pl/wp-content/uploads/2026/07/2021.06.19-20_B2_DiM_Plik_dzwiekowy.mp3', label:'B2 dla dzieci i młodzieży · czerwiec 2021', examUrl:'https://certyfikatpolski.pl/wp-content/uploads/2026/07/2021.06.19-20_B2_DiM_Arkusz_egzaminacyjny.pdf', keyUrl:'https://certyfikatpolski.pl/wp-content/uploads/2026/07/2021.06.19-20_B2_DiM_Transkrypcja_nagran.pdf' },
   'B1-2021-11': { level:'B1', label:'B1 · listopad 2021', examUrl:'https://certyfikatpolski.pl/wp-content/uploads/2026/07/2021.11.20-21_B1_Arkusz_egzaminacyjny.pdf', keyUrl:'https://certyfikatpolski.pl/wp-content/uploads/2026/07/2021.11.20-21_B1_Transkrypcja_nagran.pdf' },
   'B2-2021-11': { level:'B2', label:'B2 · listopad 2021', examUrl:'https://certyfikatpolski.pl/wp-content/uploads/2026/07/2021.11.20-21_B2_Arkusz_egzaminacyjny.pdf', keyUrl:'https://certyfikatpolski.pl/wp-content/uploads/2026/07/2021.11.20-21_B2_Transkrypcja_nagran.pdf' }
 };
@@ -1915,13 +1916,61 @@ function statusOf(att){
 const STATUS_LABEL = {assigned:'назначен', in_progress:'проходит', awaiting:'ждёт проверки', reviewed:'проверено'};
 
 const LEVELS = ['A2','B1','B2','C1'];
-function examOptionsForLevel(level){
-  return Object.keys(EXAM_META).filter(k=>EXAM_META[k].level===level);
+function examOptionsForLevel(level, studentId){
+  const all = Object.keys(EXAM_META).filter(k=>EXAM_META[k].level===level);
+  const activeExamIds = new Set(
+    cache.attempts.filter(a=>a.studentId===studentId && !a.released).map(a=>a.examId)
+  );
+  return all.filter(k=>!activeExamIds.has(k));
 }
 
 async function refreshTutorCache(){
   cache.students = await sbListStudents();
   cache.attempts = await sbListAttempts();
+}
+
+function studentCardHtml(st, attempts, lvl){
+  const myAttempts = attempts.filter(a=>a.studentId===st.id).sort((a,b)=>(b.assignedAt||'').localeCompare(a.assignedAt||''));
+  const available = examOptionsForLevel(lvl, st.id);
+  const pickerHtml = available.length
+    ? `<select id="examPick_${st.id}">${available.map(k=>`<option value="${k}">${EXAM_META[k].label}</option>`).join('')}</select>
+       <button class="btn" data-assign="${st.id}">Назначить тест</button>`
+    : `<span class="manual-note" style="padding:0; white-space:nowrap;">все варианты уровня ${lvl} уже назначены</span>`;
+  return `<div class="student-card">
+      <div class="top"><div><b>${esc(st.name)}</b> <span class="meta">@${esc(st.nickname)} · ${esc(st.level)}</span></div>
+        <div class="assign-row">
+          <div style="display:flex; gap:4px;">${LEVELS.map(l=>`<button class="btn ${lvl===l?'on':''}" data-lvlbtn="${st.id}" data-lvl="${l}" style="padding:6px 8px;">${l}</button>`).join('')}</div>
+          ${pickerHtml}
+          <button class="btn" data-archive="${st.id}">📊 Архив</button>
+        </div>
+      </div>
+      <div style="margin-top:10px;">${myAttempts.length===0 ? '<span class="manual-note" style="padding:0;">Ещё ничего не назначено.</span>' : myAttempts.map(a=>{
+        const st5=statusOf(a);
+        return `<span class="attempt-chip ${st5}" data-openattempt="${a.id}"><span class="dot"></span>${EXAM_META[a.examId].label} — ${STATUS_LABEL[st5]}</span>`;
+      }).join('')}</div>
+    </div>`;
+}
+
+function wireStudentCards(){
+  document.getElementById('addStudentBtn').onclick=()=>{ state.screen='addStudent'; render(); };
+  appEl.querySelectorAll('[data-lvlbtn]').forEach(b=>{
+    b.onclick=()=>{ withScrollPreserved(()=>{ state.assignLevel[b.dataset.lvlbtn]=b.dataset.lvl; renderTutorDashSync(); }); };
+  });
+  appEl.querySelectorAll('[data-assign]').forEach(b=>{
+    b.onclick=async ()=>{
+      const stId=b.dataset.assign;
+      const sel=document.getElementById('examPick_'+stId);
+      if(!sel) return;
+      await sbAssignTest(stId, sel.value);
+      render();
+    };
+  });
+  appEl.querySelectorAll('[data-openattempt]').forEach(b=>{
+    b.onclick=()=>{ state.selectedAttemptId=b.dataset.openattempt; state.screen='tutorReview'; render(); };
+  });
+  appEl.querySelectorAll('[data-archive]').forEach(b=>{
+    b.onclick=()=>{ state.archiveStudentId=b.dataset.archive; state.archiveBackScreen='tutorDash'; state.screen='archive'; render(); };
+  });
 }
 
 async function renderTutorDash(){
@@ -1931,49 +1980,7 @@ async function renderTutorDash(){
 
   appEl.innerHTML = `<div class="page"><div class="manual-note" style="padding:14px; border:1px solid var(--paper-line);">Загрузка…</div></div>`;
   await refreshTutorCache();
-
-  const students = cache.students, attempts = cache.attempts;
-  let html = `<div class="page">
-    <div class="section-head"><h2>Мои ученики</h2><button class="btn crimson" id="addStudentBtn">+ Добавить ученика</button></div>`;
-
-  if(students.length===0) html += `<div class="manual-note">Пока нет учеников — добавьте первого.</div>`;
-
-  students.forEach(st=>{
-    const myAttempts = attempts.filter(a=>a.studentId===st.id).sort((a,b)=>(b.assignedAt||'').localeCompare(a.assignedAt||''));
-    const lvl = state.assignLevel[st.id] || st.level || 'C1';
-    html += `<div class="student-card">
-      <div class="top"><div><b>${esc(st.name)}</b> <span class="meta">@${esc(st.nickname)} · ${esc(st.level)}</span></div>
-        <div class="assign-row">
-          <div style="display:flex; gap:4px;">${LEVELS.map(l=>`<button class="btn ${lvl===l?'on':''}" data-lvlbtn="${st.id}" data-lvl="${l}" style="padding:6px 8px;">${l}</button>`).join('')}</div>
-          <select id="examPick_${st.id}">${examOptionsForLevel(lvl).map(k=>`<option value="${k}">${EXAM_META[k].label}</option>`).join('')}</select>
-          <button class="btn" data-assign="${st.id}">Назначить тест</button>
-        </div>
-      </div>
-      <div style="margin-top:10px;">${myAttempts.length===0 ? '<span class="manual-note" style="padding:0;">Ещё ничего не назначено.</span>' : myAttempts.map(a=>{
-        const st5=statusOf(a);
-        return `<span class="attempt-chip ${st5}" data-openattempt="${a.id}"><span class="dot"></span>${EXAM_META[a.examId].label} — ${STATUS_LABEL[st5]}</span>`;
-      }).join('')}</div>
-    </div>`;
-  });
-
-  html += `</div>`;
-  appEl.innerHTML = html;
-
-  document.getElementById('addStudentBtn').onclick=()=>{ state.screen='addStudent'; render(); };
-  appEl.querySelectorAll('[data-lvlbtn]').forEach(b=>{
-    b.onclick=()=>{ withScrollPreserved(()=>{ state.assignLevel[b.dataset.lvlbtn]=b.dataset.lvl; renderTutorDashSync(); }); };
-  });
-  appEl.querySelectorAll('[data-assign]').forEach(b=>{
-    b.onclick=async ()=>{
-      const stId=b.dataset.assign;
-      const examId=document.getElementById('examPick_'+stId).value;
-      await sbAssignTest(stId, examId);
-      render();
-    };
-  });
-  appEl.querySelectorAll('[data-openattempt]').forEach(b=>{
-    b.onclick=()=>{ state.selectedAttemptId=b.dataset.openattempt; state.screen='tutorReview'; render(); };
-  });
+  renderTutorDashSync();
 }
 
 /* re-render dash from cache without refetching (used for level-toggle clicks) */
@@ -1983,39 +1990,12 @@ function renderTutorDashSync(){
     <div class="section-head"><h2>Мои ученики</h2><button class="btn crimson" id="addStudentBtn">+ Добавить ученика</button></div>`;
   if(students.length===0) html += `<div class="manual-note">Пока нет учеников — добавьте первого.</div>`;
   students.forEach(st=>{
-    const myAttempts = attempts.filter(a=>a.studentId===st.id).sort((a,b)=>(b.assignedAt||'').localeCompare(a.assignedAt||''));
     const lvl = state.assignLevel[st.id] || st.level || 'C1';
-    html += `<div class="student-card">
-      <div class="top"><div><b>${esc(st.name)}</b> <span class="meta">@${esc(st.nickname)} · ${esc(st.level)}</span></div>
-        <div class="assign-row">
-          <div style="display:flex; gap:4px;">${LEVELS.map(l=>`<button class="btn ${lvl===l?'on':''}" data-lvlbtn="${st.id}" data-lvl="${l}" style="padding:6px 8px;">${l}</button>`).join('')}</div>
-          <select id="examPick_${st.id}">${examOptionsForLevel(lvl).map(k=>`<option value="${k}">${EXAM_META[k].label}</option>`).join('')}</select>
-          <button class="btn" data-assign="${st.id}">Назначить тест</button>
-        </div>
-      </div>
-      <div style="margin-top:10px;">${myAttempts.length===0 ? '<span class="manual-note" style="padding:0;">Ещё ничего не назначено.</span>' : myAttempts.map(a=>{
-        const st5=statusOf(a);
-        return `<span class="attempt-chip ${st5}" data-openattempt="${a.id}"><span class="dot"></span>${EXAM_META[a.examId].label} — ${STATUS_LABEL[st5]}</span>`;
-      }).join('')}</div>
-    </div>`;
+    html += studentCardHtml(st, attempts, lvl);
   });
   html += `</div>`;
   appEl.innerHTML = html;
-  document.getElementById('addStudentBtn').onclick=()=>{ state.screen='addStudent'; render(); };
-  appEl.querySelectorAll('[data-lvlbtn]').forEach(b=>{
-    b.onclick=()=>{ withScrollPreserved(()=>{ state.assignLevel[b.dataset.lvlbtn]=b.dataset.lvl; renderTutorDashSync(); }); };
-  });
-  appEl.querySelectorAll('[data-assign]').forEach(b=>{
-    b.onclick=async ()=>{
-      const stId=b.dataset.assign;
-      const examId=document.getElementById('examPick_'+stId).value;
-      await sbAssignTest(stId, examId);
-      render();
-    };
-  });
-  appEl.querySelectorAll('[data-openattempt]').forEach(b=>{
-    b.onclick=()=>{ state.selectedAttemptId=b.dataset.openattempt; state.screen='tutorReview'; render(); };
-  });
+  wireStudentCards();
 }
 
 function renderAddStudent(){
@@ -2202,11 +2182,12 @@ function renderTutorReviewSync(attempt, student, SECTIONS){
 
 async function renderStudentDash(){
   document.getElementById('pageTitle').textContent='PJP C1 — мои тесты';
-  headerControlsEl.innerHTML = `<span style="font-family:var(--mono); font-size:11px; color:var(--ink-soft);">${esc(cache.student.name)} · ${esc(cache.student.level)}</span>` + renderRoleToggle();
+  headerControlsEl.innerHTML = `<span style="font-family:var(--mono); font-size:11px; color:var(--ink-soft);">${esc(cache.student.name)} · ${esc(cache.student.level)}</span><button class="btn" id="archiveBtn">📊 Архив</button>` + renderRoleToggle();
   document.getElementById('logoutBtn').onclick=studentLogout;
 
   appEl.innerHTML = `<div class="page"><div class="manual-note" style="padding:14px; border:1px solid var(--paper-line);">Загрузка…</div></div>`;
   cache.studentAttempts = await sbStudentAttempts(cache.student.id);
+  document.getElementById('archiveBtn').onclick=()=>{ state.archiveStudentId=null; state.archiveBackScreen='studentDash'; state.screen='archive'; render(); };
 
   const attempts = [...cache.studentAttempts].sort((a,b)=>(b.assignedAt||'').localeCompare(a.assignedAt||''));
   let html = `<div class="page"><h2 style="font-weight:400;">Назначенные тесты</h2>`;
@@ -2238,7 +2219,116 @@ async function renderStudentDash(){
   });
 }
 
-let testAnswers = {}, testFinishedFlag=false, testExamId=null;
+/* ============================================================
+   АРХИВ РЕЗУЛЬТАТОВ — история попыток, баллы по разделам, сравнение
+   ============================================================ */
+function objectiveTotals(attempt){
+  const SECTIONS = getSections(attempt.examId).filter(s=>s.id!=='writing');
+  const sections = {}; let overall={ok:0,total:0};
+  SECTIONS.forEach(s=>{
+    const r = sectionMarkScore(attempt, s);
+    sections[s.id] = {label:s.label, ok:r.ok, total:r.total};
+    overall.ok += r.ok; overall.total += r.total;
+  });
+  return {sections, overall};
+}
+function isPass(overall){ return overall.total>0 && (overall.ok/overall.total) >= 0.6; }
+function fmtDate(iso){ if(!iso) return '—'; const d=new Date(iso); return d.toLocaleDateString('ru-RU', {day:'2-digit', month:'2-digit', year:'numeric'}); }
+
+let archiveChart = null;
+
+function renderArchive(){
+  document.getElementById('pageTitle').textContent='PJP C1 — архив результатов';
+  headerControlsEl.innerHTML = `<button class="btn" id="backBtn">← назад</button>`;
+  document.getElementById('backBtn').onclick=()=>{ state.screen = state.archiveBackScreen || 'tutorDash'; state.archiveStudentId=null; render(); };
+
+  let attempts, studentLabel;
+  if(cache.tutor && state.archiveStudentId){
+    attempts = cache.attempts.filter(a=>a.studentId===state.archiveStudentId && a.released);
+    const st = cache.students.find(s=>s.id===state.archiveStudentId);
+    studentLabel = st ? st.name : '';
+  } else {
+    attempts = (cache.studentAttempts||[]).filter(a=>a.released);
+    studentLabel = cache.student ? cache.student.name : '';
+  }
+  attempts = attempts.sort((a,b)=>(a.releasedAt||a.finishedAt||'').localeCompare(b.releasedAt||b.finishedAt||''));
+
+  let html = `<div class="page"><h2 style="font-weight:400;">Архив · ${esc(studentLabel)}</h2>`;
+  if(attempts.length===0){
+    html += `<div class="manual-note">Пока нет проверенных тестов — архив появится после первой проверки репетитором.</div></div>`;
+    appEl.innerHTML = html;
+    return;
+  }
+
+  attempts.forEach(a=>{
+    const ot = objectiveTotals(a);
+    const pass = isPass(ot.overall);
+    html += `<div class="task"><div class="task-title" style="display:flex; justify-content:space-between;">
+        <span>${EXAM_META[a.examId].label} · ${fmtDate(a.releasedAt||a.finishedAt)}</span>
+        <span style="color:${pass?'var(--ok)':'var(--bad)'};">${pass?'СДАЛ':'НЕ СДАЛ'} · ${ot.overall.ok}/${ot.overall.total}</span>
+      </div>
+      <div class="items">${Object.values(ot.sections).map(s=>`<div class="item"><span style="flex:1;">${s.label}</span><span class="ro-answer">${s.ok} / ${s.total}</span></div>`).join('')}</div>
+    </div>`;
+  });
+
+  if(attempts.length>=2){
+    html += `<div class="comment-box"><label style="font-family:var(--mono); font-size:11px; color:var(--ink-soft);">Сравнить два теста (до / после)</label>
+      <div style="display:flex; gap:10px; margin-top:10px; flex-wrap:wrap;">
+        <select id="cmpA" style="flex:1; min-width:200px; padding:8px; font-family:var(--mono); font-size:12px; border:1px solid var(--paper-line);">
+          ${attempts.map((a,i)=>`<option value="${a.id}" ${i===0?'selected':''}>${EXAM_META[a.examId].label} · ${fmtDate(a.releasedAt||a.finishedAt)}</option>`).join('')}
+        </select>
+        <select id="cmpB" style="flex:1; min-width:200px; padding:8px; font-family:var(--mono); font-size:12px; border:1px solid var(--paper-line);">
+          ${attempts.map((a,i)=>`<option value="${a.id}" ${i===attempts.length-1?'selected':''}>${EXAM_META[a.examId].label} · ${fmtDate(a.releasedAt||a.finishedAt)}</option>`).join('')}
+        </select>
+        <button class="btn crimson" id="cmpBtn">Сравнить</button>
+      </div>
+      <canvas id="cmpCanvas" style="margin-top:18px; max-height:320px;"></canvas>
+    </div>`;
+  }
+
+  html += `</div>`;
+  appEl.innerHTML = html;
+
+  const cmpBtn = document.getElementById('cmpBtn');
+  if(cmpBtn){
+    cmpBtn.onclick=()=>{
+      const a1 = attempts.find(a=>a.id===document.getElementById('cmpA').value);
+      const a2 = attempts.find(a=>a.id===document.getElementById('cmpB').value);
+      drawCompareChart(a1, a2);
+    };
+    // авто-построить график сразу для первой/последней попытки
+    cmpBtn.click();
+  }
+}
+
+function drawCompareChart(a1, a2){
+  const ot1 = objectiveTotals(a1), ot2 = objectiveTotals(a2);
+  const ids = Array.from(new Set([...Object.keys(ot1.sections), ...Object.keys(ot2.sections)]));
+  const labels = ids.map(id => (ot1.sections[id]||ot2.sections[id]).label).concat(['Итого']);
+  const pct = (s)=> s && s.total>0 ? Math.round(s.ok/s.total*100) : 0;
+  const data1 = ids.map(id=>pct(ot1.sections[id])).concat([pct(ot1.overall)]);
+  const data2 = ids.map(id=>pct(ot2.sections[id])).concat([pct(ot2.overall)]);
+
+  const label1 = `${EXAM_META[a1.examId].label} · ${fmtDate(a1.releasedAt||a1.finishedAt)}`;
+  const label2 = `${EXAM_META[a2.examId].label} · ${fmtDate(a2.releasedAt||a2.finishedAt)}`;
+
+  if(archiveChart) archiveChart.destroy();
+  const ctx = document.getElementById('cmpCanvas').getContext('2d');
+  archiveChart = new Chart(ctx, {
+    type: 'bar',
+    data: { labels, datasets: [
+      { label: label1, data: data1, backgroundColor: '#B93A30' },
+      { label: label2, data: data2, backgroundColor: '#2F6E5E' }
+    ]},
+    options: {
+      responsive: true,
+      scales: { y: { beginAtZero:true, max:100, ticks:{ callback:v=>v+'%' } } },
+      plugins: { legend: { position:'bottom' } }
+    }
+  });
+}
+
+
 
 async function loadAttemptIntoTestState(att){
   testAnswers = JSON.parse(JSON.stringify(att.answers||{}));
@@ -2318,10 +2408,13 @@ function renderStudentTest(){
     return;
   }
 
-  if(s.id==='listening' && !testFinishedFlag){
-    html += `<div class="audiobox"><label>🔊 своё аудио (mp3)</label>
-      <input type="file" id="audioFile" accept="audio/*" style="display:block;margin-top:6px;font-family:var(--mono);font-size:11px;">
-      <audio id="player" controls style="display:none;"></audio></div>`;
+  if(s.id==='listening'){
+    const meta = EXAM_META[testExamId];
+    if(meta.audioUrl){
+      html += `<div class="audiobox"><a class="btn crimson" href="${meta.audioUrl}" target="_blank" rel="noopener">🔊 Открыть аудиозапись</a></div>`;
+    } else {
+      html += `<div class="audiobox manual-note" style="padding:10px 14px;">Аудиозапись для этого варианта пока не привязана — уточните у репетитора.</div>`;
+    }
   }
   html += `</main>`;
   appEl.innerHTML = html;
@@ -2358,11 +2451,6 @@ function renderStudentTest(){
   });
 
   document.getElementById('timerToggle').onclick=()=>{ withScrollPreserved(()=>{ state.running[s.id]=!state.running[s.id]; renderStudentTest(); }); };
-
-  if(s.id==='listening' && !testFinishedFlag){
-    const input=document.getElementById('audioFile'), player=document.getElementById('player');
-    if(input) input.addEventListener('change', e=>{ const f=e.target.files[0]; if(!f) return; player.src=URL.createObjectURL(f); player.style.display='block'; });
-  }
 
   if(!testFinishedFlag){
     mainEl.querySelectorAll('.choice').forEach(b=>{
@@ -2440,6 +2528,7 @@ function render(){
   else if(state.screen==='addStudent') renderAddStudent();
   else if(state.screen==='tutorReview') renderTutorReview();
   else if(state.screen==='studentDash') renderStudentDash();
+  else if(state.screen==='archive') renderArchive();
   else if(state.screen==='studentTest'){
     const att = cache.studentAttempts.find(a=>a.id===state.currentAttemptId);
     if(att && att.released){ renderStudentResults(att); }
