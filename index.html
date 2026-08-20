@@ -104,6 +104,17 @@
   .klucz-pin{position:sticky; top:0; z-index:5; background:var(--paper); padding:10px 0; border-bottom:1px solid var(--paper-line); margin-bottom:16px;}
   .comment-box{border:1px solid var(--paper-line); background:#fffef9; padding:12px 14px; margin:16px 0;}
   .comment-box textarea{width:100%; min-height:70px; font-family:var(--serif); font-size:13.5px; border:1px solid var(--paper-line); padding:8px; margin-top:6px;}
+
+  .tut-step{border:1px solid var(--paper-line); background:#fffef9; padding:20px 22px; margin-bottom:20px;}
+  .tut-step .tut-num{font-family:var(--mono); font-size:11px; color:var(--crimson-deep); letter-spacing:.05em; text-transform:uppercase; margin-bottom:8px;}
+  .tut-step .tut-text{font-size:14px; line-height:1.6; margin-bottom:14px;}
+  .tut-screen{border:2px solid var(--ink); border-radius:4px; background:#e9e4d6; height:150px; position:relative; overflow:hidden;}
+  .tut-win{position:absolute; top:8px; background:#fff; border:1px solid var(--ink); border-radius:3px; box-shadow:0 6px 14px rgba(0,0,0,.15); transition:all .2s;}
+  .tut-win .tut-bar{height:16px; background:var(--paper-line); border-bottom:1px solid var(--ink); display:flex; align-items:center; gap:3px; padding:0 6px;}
+  .tut-win .tut-dot{width:5px; height:5px; border-radius:50%; background:var(--ink-soft);}
+  .tut-win.a{background:#fff2f0;}
+  .tut-win.b{background:#eef7f2;}
+  .tut-arrow{position:absolute; font-size:22px; color:var(--crimson); z-index:5;}
 </style>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <script src="https://cdn.jsdelivr.net/npm/chart.js@4"></script>
@@ -1670,10 +1681,10 @@ const EXAM_META = {
   'B1-2020': { level:'B1', audioUrl:'https://certyfikatpolski.pl/wp-content/uploads/2020/12/B1_2020_03.mp3', label:'B1 · marzec 2020', examUrl:'https://certyfikatpolski.pl/wp-content/uploads/2020/12/B1_przykladowy_test_2020_03.pdf', keyUrl:'https://certyfikatpolski.pl/wp-content/uploads/2020/12/B1_przykladowy_transkrypcje_i_klucz_2020_03.pdf' },
   'B1-2019': { level:'B1', audioUrl:'https://certyfikatpolski.pl/wp-content/uploads/2019/09/B1_audio.mp3', label:'B1 · wrzesień 2019', examUrl:'https://certyfikatpolski.pl/wp-content/uploads/2019/09/B1_test.pdf', keyUrl:'https://certyfikatpolski.pl/wp-content/uploads/2019/09/B1_klucz.pdf' },
   'B1-2017': { level:'B1', audioUrl:'https://certyfikatpolski.pl/wp-content/uploads/2017/03/Egzamin-Przyk%C5%82adowy-B1-gru2016.mp3', label:'B1 · maj 2017', examUrl:'https://certyfikatpolski.pl/wp-content/uploads/2017/05/5_B1_test.pdf', keyUrl:'https://certyfikatpolski.pl/wp-content/uploads/2017/03/5_B1_tr-klucz.pdf' },
-  'B1-DM-2017': { level:'B1', audioUrl:'https://certyfikatpolski.pl/wp-content/uploads/2017/03/Egzaminy-kwiecie%C5%84-PL-B1-m%C5%82odzie%C5%BC-PRZYK%C5%81ADOWY.mp3', label:'B1 dla dzieci i młodzieży · 2017', examUrl:'https://certyfikatpolski.pl/wp-content/uploads/2017/03/B1_DM_test-przykladowy.pdf', keyUrl:'https://certyfikatpolski.pl/wp-content/uploads/2017/03/B1_DM_TRANS-KLUCZ_test-przykladowy.pdf' },
-  'B1-DM-2019': { level:'B1', audioUrl:'https://certyfikatpolski.pl/wp-content/uploads/2019/11/B1_test2_audio.mp3', label:'B1 dla dzieci i młodzieży · 2019', examUrl:'https://certyfikatpolski.pl/wp-content/uploads/2019/11/B1_test2_test.pdf', keyUrl:'https://certyfikatpolski.pl/wp-content/uploads/2019/11/B1_test2_klucz.pdf' },
-  'B2-DM-2018': { level:'B2', audioUrl:'https://certyfikatpolski.pl/wp-content/uploads/2018/04/Egzaminy-B2DM-przyk%C5%82adowy-24_04_20181.mp3', label:'B2 dla dzieci i młodzieży · 2018', examUrl:'https://certyfikatpolski.pl/wp-content/uploads/2018/04/B2_DiM-test-przyk%C5%82adowy_-scalony-27.04-do-publikacji1.pdf', keyUrl:'https://certyfikatpolski.pl/wp-content/uploads/2018/04/B2_DiM_TRANS_KLUCZ-test-przyk%C5%82adowy-do-publikacji1.pdf' },
-  'A2': { level:'A2', audioUrl:'https://certyfikatpolski.pl/wp-content/uploads/2018/10/A2_przyklad.mp3', label:'A2', examUrl:'https://certyfikatpolski.pl/wp-content/uploads/2018/10/t_a2.pdf', keyUrl:'https://certyfikatpolski.pl/wp-content/uploads/2018/10/tr_klucz_a2.pdf' },
+  'B1-DM-2017': { level:'B1', audioUrl:'https://certyfikatpolski.pl/wp-content/uploads/2017/03/Egzaminy-kwiecie%C5%84-PL-B1-m%C5%82odzie%C5%BC-PRZYK%C5%81ADOWY.mp3', label:'B1 dla dzieci i młodzieży · kwiecień 2017', examUrl:'https://certyfikatpolski.pl/wp-content/uploads/2017/03/B1_DM_test-przykladowy.pdf', keyUrl:'https://certyfikatpolski.pl/wp-content/uploads/2017/03/B1_DM_TRANS-KLUCZ_test-przykladowy.pdf' },
+  'B1-DM-2019': { level:'B1', audioUrl:'https://certyfikatpolski.pl/wp-content/uploads/2019/11/B1_test2_audio.mp3', label:'B1 dla dzieci i młodzieży · listopad 2019', examUrl:'https://certyfikatpolski.pl/wp-content/uploads/2019/11/B1_test2_test.pdf', keyUrl:'https://certyfikatpolski.pl/wp-content/uploads/2019/11/B1_test2_klucz.pdf' },
+  'B2-DM-2018': { level:'B2', audioUrl:'https://certyfikatpolski.pl/wp-content/uploads/2018/04/Egzaminy-B2DM-przyk%C5%82adowy-24_04_20181.mp3', label:'B2 dla dzieci i młodzieży · kwiecień 2018', examUrl:'https://certyfikatpolski.pl/wp-content/uploads/2018/04/B2_DiM-test-przyk%C5%82adowy_-scalony-27.04-do-publikacji1.pdf', keyUrl:'https://certyfikatpolski.pl/wp-content/uploads/2018/04/B2_DiM_TRANS_KLUCZ-test-przyk%C5%82adowy-do-publikacji1.pdf' },
+  'A2': { level:'A2', audioUrl:'https://certyfikatpolski.pl/wp-content/uploads/2018/10/A2_przyklad.mp3', label:'A2 · październik 2018', examUrl:'https://certyfikatpolski.pl/wp-content/uploads/2018/10/t_a2.pdf', keyUrl:'https://certyfikatpolski.pl/wp-content/uploads/2018/10/tr_klucz_a2.pdf' },
   'B2-2024-02': { level:'B2', audioUrl:'https://certyfikatpolski.pl/wp-content/uploads/2025/02/4-5.02.2024-B2_plik_dzwiekowy.mp3', label:'B2 · luty 2024', examUrl:'https://certyfikatpolski.pl/wp-content/uploads/2025/02/4-5.02.2024-B2_arkusz_egzaminacyjny.pdf', keyUrl:'https://certyfikatpolski.pl/wp-content/uploads/2025/02/4-5.02.2024-B2_transkrypcja.pdf' },
   'B1-2024-02': { level:'B1', audioUrl:'https://certyfikatpolski.pl/wp-content/uploads/2025/02/4-5.02.2024-B1_plik_dzwiekowy.mp3', label:'B1 · luty 2024', examUrl:'https://certyfikatpolski.pl/wp-content/uploads/2025/02/4-5.02.2024-B1_arkusz_egzaminacyjny.pdf', keyUrl:'https://certyfikatpolski.pl/wp-content/uploads/2025/02/4-5.02.2024-B1_transkrypcja.pdf' },
   'B1-2024-04': { level:'B1', audioUrl:'https://certyfikatpolski.pl/wp-content/uploads/2025/02/20-21.04.2024-B1_plik_dzwiekowy.mp3', label:'B1 · kwiecień 2024', examUrl:'https://certyfikatpolski.pl/wp-content/uploads/2025/02/20-21.04.2024-B1_arkusz_egzaminacyjny.pdf', keyUrl:'https://certyfikatpolski.pl/wp-content/uploads/2025/02/20-21.04.2024-B1_transkrypcja.pdf' },
@@ -1767,6 +1778,10 @@ async function sbAssignTest(studentId, examId){
   const { error } = await sb.from('attempts').insert({ student_id: studentId, exam_id: examId });
   return error;
 }
+async function sbDeleteAttempt(attemptId){
+  const { error } = await sb.from('attempts').delete().eq('id', attemptId);
+  return error;
+}
 async function sbUpdateMarks(attemptId, marks){
   const { error } = await sb.from('attempts').update({ marks }).eq('id', attemptId);
   return error;
@@ -1798,6 +1813,15 @@ function withScrollPreserved(fn){
   const y = window.scrollY;
   fn();
   requestAnimationFrame(()=>window.scrollTo(0,y));
+}
+
+/* Открывает официальный PDF/аудио в ОТДЕЛЬНОМ окне (не вкладке), справа —
+   чтобы платформа и arkusz можно было видеть одновременно side-by-side. */
+function openExamWindow(url){
+  const w = Math.round((window.screen.availWidth||1200)/2);
+  const h = window.screen.availHeight||900;
+  const left = (window.screen.availWidth||1200) - w;
+  window.open(url, 'pjp_exam_window', `noopener,width=${w},height=${h},left=${left},top=0`);
 }
 
 /* ---- app state + local cache (populated by async fetches before each render) ---- */
@@ -1929,25 +1953,66 @@ async function refreshTutorCache(){
   cache.attempts = await sbListAttempts();
 }
 
+function groupAttemptsByLevelAndStatus(myAttempts){
+  const byLevel = {};
+  myAttempts.forEach(a=>{
+    const lvl = EXAM_META[a.examId] ? EXAM_META[a.examId].level : '?';
+    byLevel[lvl] = byLevel[lvl] || {pending:[], assigned:[], reviewed:[]};
+    const s5 = statusOf(a);
+    if(s5==='reviewed') byLevel[lvl].reviewed.push(a);
+    else if(s5==='assigned') byLevel[lvl].assigned.push(a);
+    else byLevel[lvl].pending.push(a); // in_progress + awaiting объединены
+  });
+  return byLevel;
+}
+
+function attemptChip(a){
+  const st5=statusOf(a);
+  if(state.confirmDeleteId === a.id){
+    return `<span class="attempt-chip ${st5}" style="padding-right:10px;">
+      <span><span class="dot"></span>${EXAM_META[a.examId].label} — удалить?</span>
+      <span data-deleteyes="${a.id}" style="cursor:pointer; color:var(--ok); font-weight:700; margin-left:8px;">✓</span>
+      <span data-deleteno="${a.id}" style="cursor:pointer; color:var(--ink-soft); font-weight:700; margin-left:6px;">✕</span>
+    </span>`;
+  }
+  return `<span class="attempt-chip ${st5}" style="position:relative; padding-right:26px;">
+    <span data-openattempt="${a.id}" style="cursor:pointer;"><span class="dot"></span>${EXAM_META[a.examId].label} — ${STATUS_LABEL[st5]}</span>
+    <span data-delete="${a.id}" title="Удалить" style="position:absolute; right:6px; top:50%; transform:translateY(-50%); cursor:pointer; color:var(--bad); font-weight:700;">✕</span>
+  </span>`;
+}
+
 function studentCardHtml(st, attempts, lvl){
-  const myAttempts = attempts.filter(a=>a.studentId===st.id).sort((a,b)=>(b.assignedAt||'').localeCompare(a.assignedAt||''));
+  const myAttempts = attempts.filter(a=>a.studentId===st.id);
   const available = examOptionsForLevel(lvl, st.id);
   const pickerHtml = available.length
-    ? `<select id="examPick_${st.id}">${available.map(k=>`<option value="${k}">${EXAM_META[k].label}</option>`).join('')}</select>
+    ? `<select id="examPick_${st.id}" style="flex:1; min-width:260px; max-width:260px; text-align-last:center;">${available.map(k=>`<option value="${k}">${EXAM_META[k].label}</option>`).join('')}</select>
        <button class="btn" data-assign="${st.id}">Назначить тест</button>`
-    : `<span class="manual-note" style="padding:0; white-space:nowrap;">все варианты уровня ${lvl} уже назначены</span>`;
+    : `<span class="manual-note" style="padding:8px 0; white-space:nowrap; flex:1; min-width:260px; max-width:260px; text-align:center;">все варианты уровня ${lvl} назначены</span>`;
+
+  const grouped = groupAttemptsByLevelAndStatus(myAttempts);
+  const levelOrder = LEVELS.filter(l=>grouped[l]);
+  let listHtml = '';
+  if(levelOrder.length===0){
+    listHtml = '<span class="manual-note" style="padding:0;">Ещё ничего не назначено.</span>';
+  } else {
+    levelOrder.forEach(l=>{
+      const g = grouped[l];
+      listHtml += `<div style="margin-top:12px;"><div style="font-family:var(--mono); font-size:10.5px; letter-spacing:.05em; text-transform:uppercase; color:var(--ink-soft); margin-bottom:6px;">Уровень ${l}</div>`;
+      if(g.pending.length) listHtml += `<div style="margin-bottom:6px;">${g.pending.map(attemptChip).join(' ')}</div>`;
+      if(g.assigned.length) listHtml += `<div style="margin-bottom:6px;">${g.assigned.map(attemptChip).join(' ')}</div>`;
+      if(g.reviewed.length) listHtml += `<div>${g.reviewed.map(attemptChip).join(' ')}</div>`;
+      listHtml += `</div>`;
+    });
+  }
+
   return `<div class="student-card">
-      <div class="top"><div><b>${esc(st.name)}</b> <span class="meta">@${esc(st.nickname)} · ${esc(st.level)}</span></div>
-        <div class="assign-row">
-          <div style="display:flex; gap:4px;">${LEVELS.map(l=>`<button class="btn ${lvl===l?'on':''}" data-lvlbtn="${st.id}" data-lvl="${l}" style="padding:6px 8px;">${l}</button>`).join('')}</div>
-          ${pickerHtml}
-          <button class="btn" data-archive="${st.id}">📊 Архив</button>
-        </div>
+      <div><b>${esc(st.name)}</b> <span class="meta">@${esc(st.nickname)} · ${esc(st.level)}</span></div>
+      <div class="assign-row" style="margin-top:10px; flex-wrap:wrap;">
+        <div style="display:flex; gap:4px;">${LEVELS.map(l=>`<button class="btn ${lvl===l?'on':''}" data-lvlbtn="${st.id}" data-lvl="${l}" style="padding:6px 8px;">${l}</button>`).join('')}</div>
+        ${pickerHtml}
+        <button class="btn" data-archive="${st.id}">📊 Архив</button>
       </div>
-      <div style="margin-top:10px;">${myAttempts.length===0 ? '<span class="manual-note" style="padding:0;">Ещё ничего не назначено.</span>' : myAttempts.map(a=>{
-        const st5=statusOf(a);
-        return `<span class="attempt-chip ${st5}" data-openattempt="${a.id}"><span class="dot"></span>${EXAM_META[a.examId].label} — ${STATUS_LABEL[st5]}</span>`;
-      }).join('')}</div>
+      <div>${listHtml}</div>
     </div>`;
 }
 
@@ -1970,6 +2035,26 @@ function wireStudentCards(){
   });
   appEl.querySelectorAll('[data-archive]').forEach(b=>{
     b.onclick=()=>{ state.archiveStudentId=b.dataset.archive; state.archiveBackScreen='tutorDash'; state.screen='archive'; render(); };
+  });
+  appEl.querySelectorAll('[data-delete]').forEach(b=>{
+    b.onclick=(e)=>{
+      e.stopPropagation();
+      withScrollPreserved(()=>{ state.confirmDeleteId = b.dataset.delete; renderTutorDashSync(); });
+    };
+  });
+  appEl.querySelectorAll('[data-deleteno]').forEach(b=>{
+    b.onclick=(e)=>{
+      e.stopPropagation();
+      withScrollPreserved(()=>{ state.confirmDeleteId = null; renderTutorDashSync(); });
+    };
+  });
+  appEl.querySelectorAll('[data-deleteyes]').forEach(b=>{
+    b.onclick=async (e)=>{
+      e.stopPropagation();
+      await sbDeleteAttempt(b.dataset.deleteyes);
+      state.confirmDeleteId = null;
+      render();
+    };
   });
 }
 
@@ -2182,15 +2267,16 @@ function renderTutorReviewSync(attempt, student, SECTIONS){
 
 async function renderStudentDash(){
   document.getElementById('pageTitle').textContent='PJP C1 — мои тесты';
-  headerControlsEl.innerHTML = `<span style="font-family:var(--mono); font-size:11px; color:var(--ink-soft);">${esc(cache.student.name)} · ${esc(cache.student.level)}</span><button class="btn" id="archiveBtn">📊 Архив</button>` + renderRoleToggle();
+  headerControlsEl.innerHTML = `<span style="font-family:var(--mono); font-size:11px; color:var(--ink-soft);">${esc(cache.student.name)} · ${esc(cache.student.level)}</span><button class="btn" id="tutorialBtn">🎓 Как пользоваться</button><button class="btn" id="archiveBtn">📊 Архив</button>` + renderRoleToggle();
   document.getElementById('logoutBtn').onclick=studentLogout;
 
   appEl.innerHTML = `<div class="page"><div class="manual-note" style="padding:14px; border:1px solid var(--paper-line);">Загрузка…</div></div>`;
   cache.studentAttempts = await sbStudentAttempts(cache.student.id);
   document.getElementById('archiveBtn').onclick=()=>{ state.archiveStudentId=null; state.archiveBackScreen='studentDash'; state.screen='archive'; render(); };
+  document.getElementById('tutorialBtn').onclick=()=>{ state.tutorialBack='studentDash'; state.screen='tutorial'; render(); };
 
   const attempts = [...cache.studentAttempts].sort((a,b)=>(b.assignedAt||'').localeCompare(a.assignedAt||''));
-  let html = `<div class="page"><h2 style="font-weight:400;">Назначенные тесты</h2>`;
+  let html = `<div class="page"><div class="banner" id="confirmBanner" style="margin-bottom:16px;"></div><h2 style="font-weight:400;">Назначенные тесты</h2>`;
   if(attempts.length===0) html += `<div class="manual-note">Пока ничего не назначено — обратитесь к репетитору.</div>`;
   attempts.forEach(a=>{
     const st5 = statusOf(a);
@@ -2207,14 +2293,28 @@ async function renderStudentDash(){
   appEl.innerHTML = html;
   appEl.querySelectorAll('[data-open]').forEach(el=>{
     el.style.cursor='pointer';
-    el.onclick=async ()=>{
+    el.onclick=()=>{
       const att = cache.studentAttempts.find(a=>a.id===el.dataset.open);
       const st5 = statusOf(att);
       if(st5==='awaiting'){ return; }
-      state.currentAttemptId = att.id;
-      state.screen='studentTest';
-      await loadAttemptIntoTestState(att);
-      render();
+      if(st5==='reviewed'){
+        state.currentAttemptId = att.id;
+        state.screen='studentTest';
+        render();
+        return;
+      }
+      const banner = document.getElementById('confirmBanner');
+      banner.style.display='block';
+      banner.innerHTML = `Начать тест «${EXAM_META[att.examId].label}»? Задание откроется отдельным окном — оставьте эту страницу открытой рядом.
+        <button id="startYes" class="btn" style="margin-left:10px; border-color:#fff; color:#fff;">Да, начать</button>
+        <button id="startNo" class="btn" style="margin-left:6px; border-color:#fff; color:#fff;">Отмена</button>`;
+      document.getElementById('startYes').onclick=async ()=>{
+        state.currentAttemptId = att.id;
+        state.screen='studentTest';
+        await loadAttemptIntoTestState(att);
+        render();
+      };
+      document.getElementById('startNo').onclick=()=>{ banner.style.display='none'; };
     };
   });
 }
@@ -2236,6 +2336,54 @@ function isPass(overall){ return overall.total>0 && (overall.ok/overall.total) >
 function fmtDate(iso){ if(!iso) return '—'; const d=new Date(iso); return d.toLocaleDateString('ru-RU', {day:'2-digit', month:'2-digit', year:'numeric'}); }
 
 let archiveChart = null;
+
+function renderTutorial(){
+  document.getElementById('pageTitle').textContent='PJP C1 — как пользоваться';
+  headerControlsEl.innerHTML = `<button class="btn" id="backBtn">← назад</button>`;
+  document.getElementById('backBtn').onclick=()=>{ state.screen = state.tutorialBack || 'studentDash'; render(); };
+
+  const html = `<div class="page">
+    <h2 style="font-weight:400;">Как удобно проходить тест</h2>
+    <p class="dash-sub" style="color:var(--ink-soft); margin-bottom:24px;">Задание (arkusz) открывается в отдельном окне — так его удобно расположить рядом с платформой, а не переключаться между вкладками. Вот как это сделать за 20 секунд.</p>
+
+    <div class="tut-step">
+      <div class="tut-num">Шаг 1</div>
+      <div class="tut-text">Когда вы нажимаете «Начать тест», окно платформы остаётся как есть. Возьмите его за верхнюю полоску (где крестик и кнопка «свернуть») и перетащите в самый левый край экрана.</div>
+      <div class="tut-screen">
+        <div class="tut-win a" style="width:55%; left:22%; height:130px;"><div class="tut-bar"><span class="tut-dot"></span><span class="tut-dot"></span><span class="tut-dot"></span></div></div>
+        <div class="tut-arrow" style="left:18%; top:60px;">←</div>
+      </div>
+    </div>
+
+    <div class="tut-step">
+      <div class="tut-num">Шаг 2</div>
+      <div class="tut-text">Как только курсор коснётся края экрана, окно платформы само встанет на левую половину. Отпустите — готово, платформа закреплена слева.</div>
+      <div class="tut-screen">
+        <div class="tut-win a" style="width:48%; left:0; height:150px; top:0; border-radius:0;"><div class="tut-bar"><span class="tut-dot"></span><span class="tut-dot"></span><span class="tut-dot"></span></div></div>
+      </div>
+    </div>
+
+    <div class="tut-step">
+      <div class="tut-num">Шаг 3</div>
+      <div class="tut-text">Теперь нажмите «Да, начать» — тест (arkusz) откроется отдельным новым окном справа. Возьмите уже это новое окно за полоску и перетащите к правому краю экрана — оно точно так же встанет на правую половину.</div>
+      <div class="tut-screen">
+        <div class="tut-win a" style="width:48%; left:0; height:150px; top:0; border-radius:0;"><div class="tut-bar"><span class="tut-dot"></span><span class="tut-dot"></span><span class="tut-dot"></span></div></div>
+        <div class="tut-win b" style="width:40%; left:56%; height:130px;"><div class="tut-bar"><span class="tut-dot"></span><span class="tut-dot"></span><span class="tut-dot"></span></div></div>
+        <div class="tut-arrow" style="right:6%; top:60px;">→</div>
+      </div>
+    </div>
+
+    <div class="tut-step" style="margin-bottom:0;">
+      <div class="tut-num">Готово</div>
+      <div class="tut-text">Платформа — слева, arkusz с заданиями — справа. Оба окна видно одновременно, переключаться между вкладками не нужно.</div>
+      <div class="tut-screen">
+        <div class="tut-win a" style="width:48%; left:0; height:150px; top:0; border-radius:0;"><div class="tut-bar"><span class="tut-dot"></span><span class="tut-dot"></span><span class="tut-dot"></span></div></div>
+        <div class="tut-win b" style="width:48%; left:52%; height:150px; top:0; border-radius:0;"><div class="tut-bar"><span class="tut-dot"></span><span class="tut-dot"></span><span class="tut-dot"></span></div></div>
+      </div>
+    </div>
+  </div>`;
+  appEl.innerHTML = html;
+}
 
 function renderArchive(){
   document.getElementById('pageTitle').textContent='PJP C1 — архив результатов';
@@ -2372,14 +2520,15 @@ function renderTabs(){
 function renderStudentTest(){
   document.getElementById('pageTitle').textContent='PJP C1 — '+EXAM_META[testExamId].label;
   headerControlsEl.innerHTML = `<button class="btn" id="backBtn">← к тестам</button>` +
-    `<a class="btn" id="openArkuszBtn" href="${EXAM_META[testExamId].examUrl}" target="_blank" rel="noopener">📄 Открыть arkusz</a>` +
+    `<button class="btn" id="openArkuszBtn">📄 Открыть arkusz</button>` +
     (testFinishedFlag ? '' : `<button class="btn crimson" id="finishBtn">✓ Завершить тест</button>`);
   document.getElementById('backBtn').onclick=()=>{ saveProgress(); state.screen='studentDash'; render(); };
+  document.getElementById('openArkuszBtn').onclick=()=>openExamWindow(EXAM_META[testExamId].examUrl);
   if(!testFinishedFlag) document.getElementById('finishBtn').onclick=confirmFinish;
 
   if(!state.arkuszAutoOpened){
     state.arkuszAutoOpened = true;
-    window.open(EXAM_META[testExamId].examUrl, '_blank');
+    openExamWindow(EXAM_META[testExamId].examUrl);
   }
 
   const SECTIONS = getSections(testExamId);
@@ -2411,7 +2560,7 @@ function renderStudentTest(){
   if(s.id==='listening'){
     const meta = EXAM_META[testExamId];
     if(meta.audioUrl){
-      html += `<div class="audiobox"><a class="btn crimson" href="${meta.audioUrl}" target="_blank" rel="noopener">🔊 Открыть аудиозапись</a></div>`;
+      html += `<div class="audiobox"><button class="btn crimson" id="openAudioBtn">🔊 Открыть аудиозапись</button></div>`;
     } else {
       html += `<div class="audiobox manual-note" style="padding:10px 14px;">Аудиозапись для этого варианта пока не привязана — уточните у репетитора.</div>`;
     }
@@ -2419,6 +2568,8 @@ function renderStudentTest(){
   html += `</main>`;
   appEl.innerHTML = html;
   renderTabs();
+  const audioBtn = document.getElementById('openAudioBtn');
+  if(audioBtn) audioBtn.onclick=()=>openExamWindow(EXAM_META[testExamId].audioUrl);
 
   const mainEl = document.querySelector('main');
   s.tasks.forEach(task=>{
@@ -2529,6 +2680,7 @@ function render(){
   else if(state.screen==='tutorReview') renderTutorReview();
   else if(state.screen==='studentDash') renderStudentDash();
   else if(state.screen==='archive') renderArchive();
+  else if(state.screen==='tutorial') renderTutorial();
   else if(state.screen==='studentTest'){
     const att = cache.studentAttempts.find(a=>a.id===state.currentAttemptId);
     if(att && att.released){ renderStudentResults(att); }
